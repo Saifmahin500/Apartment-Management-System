@@ -12,9 +12,13 @@ const TenantForm = ({ tenant, onSuccess }) => {
   const [flats, setFlats] = useState([]);
 
   useEffect(() => {
-    api.get("/flats").then((res) => setFlats(res.data));
+    api.get("/flats").then((res) => {
+      const flatData = Array.isArray(res.data) ? res.data : res.data.data;
+      setFlats(flatData || []);
+    });
     if (tenant) setForm(tenant);
   }, [tenant]);
+  
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

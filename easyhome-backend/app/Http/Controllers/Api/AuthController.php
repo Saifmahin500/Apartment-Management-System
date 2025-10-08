@@ -11,33 +11,40 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    // ✅ Register
+    /**
+     * User Registration
+     */
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users,email',
-            'phone' => 'required|string|max:11',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|unique:users,email',
+            'phone'    => 'required|string|max:11',
             'password' => 'required|string|min:6',
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'], 
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'phone'    => $validated['phone'],
             'password' => bcrypt($validated['password']),
+            // 👉 চাইলে এখানে ডিফল্ট role সেট করতে পারো
+            'role'     => 'tenant', 
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'token' => $token,
-            'user' => $user,
+            'message' => 'Registration successful',
+            'user'    => $user,
+            'token'   => $token,
+            'role'    => $user->role,
         ], 201);
     }
 
-
-    // ✅ Login
+    /**
+     * User Login
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -49,7 +56,7 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Invalid credentials']
+                'email' => ['Invalid credentials.']
             ]);
         }
 
@@ -57,19 +64,27 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login successful',
-            'user' => $user,
-            'token' => $token
+            'user'    => $user,
+            'token'   => $token,
+            'role'    => $user->role,
         ]);
     }
 
-    // ✅ Logout
+    /**
+     * User Logout
+     */
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
-        return response()->json(['message' => 'Logged out successfully']);
+
+        return response()->json([
+            'message' => 'Logged out successfully',
+        ]);
     }
 
-    // ✅ Authenticated User
+    /**
+     * ✅ Authenticated User Info
+     */
     public function me(Request $request)
     {
         return response()->json($request->user());

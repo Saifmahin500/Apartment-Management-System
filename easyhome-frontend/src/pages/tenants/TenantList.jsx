@@ -3,19 +3,24 @@ import api from "../../services/api";
 import { Button, Table, Modal } from "react-bootstrap";
 import TenantForm from "./TenantForm";
 
+
 const TenantList = () => {
   const [tenants, setTenants] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editTenant, setEditTenant] = useState(null);
 
   const fetchTenants = async () => {
-    try {
-      const res = await api.get("/tenants");
-      setTenants(res.data);
-    } catch (err) {
-      console.error("Failed to load tenants", err);
-    }
-  };
+  try {
+    const res = await api.get("/tenants");
+    
+    const tenantData = Array.isArray(res.data) ? res.data : res.data.data;
+    setTenants(tenantData || []);
+  } catch (err) {
+    console.error("Failed to load tenants", err);
+    setTenants([]); 
+  }
+};
+
 
   useEffect(() => {
     fetchTenants();

@@ -1,12 +1,18 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 
-// ✅ This component protects private routes
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const token = localStorage.getItem("token");
-  if (!token) {
-    return <Navigate to="/" replace />;
+  const userRole = localStorage.getItem("role");
+
+  
+  if (!token) return <Navigate to="/" />;
+
+  
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    return <Navigate to="/dashboard/unauthorized" />;
   }
+
   return children;
 };
 

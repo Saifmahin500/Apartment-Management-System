@@ -22,6 +22,8 @@ const Register = () => {
     try {
       const res = await api.post("/auth/register", form);
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("role", res.data.role);
+
 
       Swal.fire({
         title: "🎉 Registration Successful!",
