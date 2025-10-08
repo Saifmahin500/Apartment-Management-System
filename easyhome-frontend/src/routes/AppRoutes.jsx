@@ -1,27 +1,51 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
-import Dashboard from "../pages/dashboard/Dashboard";
-
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/" />;
-};
+import DashboardLayout from "../layout/DashboardLayout";
+import DashboardHome from "../pages/dashboard/DashboardHome";
+import Profile from "../pages/dashboard/Profile";
+import ProtectedRoute from "./ProtectedRoute";
+import TenantList from "../pages/tenants/TenantList";
 
 const AppRoutes = () => {
   return (
     <Router>
       <Routes>
+        {/* Auth */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Dashboard Protected Routes */}
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
+            <ProtectedRoute>
+              <DashboardLayout>
+                <DashboardHome />
+              </DashboardLayout>
+            </ProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard/profile"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <Profile />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+  path="/dashboard/tenants"
+  element={
+    <ProtectedRoute>
+      <DashboardLayout>
+        <TenantList />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </Router>
   );
