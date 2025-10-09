@@ -14,8 +14,7 @@ import DashboardHome from "../pages/dashboard/DashboardHome";
 import Profile from "../pages/dashboard/Profile";
 import TenantList from "../pages/tenants/TenantList";
 import TenantDashboard from "../pages/tenants/TenantDashboard";
-import Unauthorized from "../pages/Unauthorized";
-
+import Unauthorized from "../pages/Unauthorized"; 
 const AppRoutes = () => {
   return (
     <Router>
@@ -68,7 +67,7 @@ const AppRoutes = () => {
           />
         </Route>
 
-        {/* 🚫 Fallback 404 Route */}
+        {/* 🚫 404 Fallback Route */}
         <Route
           path="*"
           element={

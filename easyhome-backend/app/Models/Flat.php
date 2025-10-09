@@ -11,9 +11,14 @@ class Flat extends Model
 
     protected $fillable = [
         'building_id',
+        'name',
         'flat_number',
         'floor',
-        'is_occupied'
+        'rent_amount',
+        'size',
+        'image',
+        'status',
+        'is_occupied',
     ];
 
     public function building()
