@@ -40,6 +40,8 @@ const Sidebar = () => {
         Dashboard
       </NavLink>
 
+      
+
       {/* ADMIN / OWNER Links */}
       {(role === "admin" || role === "owner") && (
         <>
@@ -54,6 +56,18 @@ const Sidebar = () => {
             <Users size={18} className="me-2" />
             Tenants
           </NavLink>
+
+          <NavLink
+  to="/dashboard/flats"
+  className={({ isActive }) =>
+    `text-decoration-none d-flex align-items-center mb-3 ${
+      isActive ? "fw-bold text-warning" : "text-white"
+    }`
+  }
+>
+  🏠 Flats
+</NavLink>
+
 
           <NavLink
             to="/dashboard/rents"

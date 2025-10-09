@@ -14,7 +14,9 @@ import DashboardHome from "../pages/dashboard/DashboardHome";
 import Profile from "../pages/dashboard/Profile";
 import TenantList from "../pages/tenants/TenantList";
 import TenantDashboard from "../pages/tenants/TenantDashboard";
-import Unauthorized from "../pages/Unauthorized"; 
+import FlatList from "../pages/flats/FlatList";
+import Unauthorized from "../pages/Unauthorized";
+
 const AppRoutes = () => {
   return (
     <Router>
@@ -33,10 +35,10 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         >
-          {/* 🏠 Common Dashboard for Admin/Owner */}
+          {/* 🏠 Dashboard Home */}
           <Route index element={<DashboardHome />} />
 
-          {/* 👤 Profile Page */}
+          {/* 👤 Profile */}
           <Route
             path="profile"
             element={
@@ -46,7 +48,17 @@ const AppRoutes = () => {
             }
           />
 
-          {/* 🧱 Tenant Management (Only for Admin/Owner) */}
+          {/* 🏠 Flats (Admin/Owner Only) */}
+          <Route
+            path="flats"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "owner"]}>
+                <FlatList />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* 🧱 Tenants */}
           <Route
             path="tenants"
             element={
@@ -56,7 +68,7 @@ const AppRoutes = () => {
             }
           />
 
-          {/* 🏘 Tenant-specific Dashboard */}
+          {/* 👥 Tenant Dashboard */}
           <Route
             path="tenant"
             element={
@@ -67,7 +79,7 @@ const AppRoutes = () => {
           />
         </Route>
 
-        {/* 🚫 404 Fallback Route */}
+        {/* 🚫 404 Fallback */}
         <Route
           path="*"
           element={
