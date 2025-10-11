@@ -30,4 +30,9 @@ class Flat extends Model
     {
         return $this->hasOne(Tenant::class);
     }
+    public function images()
+{
+    return $this->hasMany(FlatImage::class);
+}
+
 }

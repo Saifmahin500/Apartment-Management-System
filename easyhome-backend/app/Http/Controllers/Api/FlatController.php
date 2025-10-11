@@ -12,42 +12,55 @@ class FlatController extends Controller
     // 🔹 Get all flats
     public function index()
     {
-        return response()->json(Flat::all());
+        // Eager load the 'images' relation
+        $flats = Flat::with('images')->get();
+
+        return response()->json($flats);
     }
+
 
     // 🔹 Store flat
     public function store(Request $request)
     {
         $request->validate([
-            'building_id' => 'nullable|integer',
+            'building_id' => 'required|exists:buildings,id',
             'name' => 'required|string|max:255',
             'flat_number' => 'nullable|string|max:255',
             'floor' => 'required|integer',
             'rent_amount' => 'required|numeric',
-            'size' => 'nullable|string|max:50',
-            'status' => 'in:available,occupied',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'size' => 'nullable|string',
+            'status' => 'required|in:available,occupied',
+            'images.*' => 'nullable|image|mimes:jpg,png,jpeg|max:2048',
         ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('flats', 'public');
-        }
-
+        // ✅ Step 1: First create flat (without image)
         $flat = Flat::create([
             'building_id' => $request->building_id,
             'name' => $request->name,
-            'flat_number' => $request->flat_number,
+            'flat_number' => $request->flat_number ?? $request->name,
             'floor' => $request->floor,
             'rent_amount' => $request->rent_amount,
             'size' => $request->size,
-            'image' => $imagePath,
-            'status' => $request->status ?? 'available',
+            'status' => $request->status,
             'is_occupied' => $request->status === 'occupied' ? 1 : 0,
         ]);
 
-        return response()->json(['message' => 'Flat added successfully', 'flat' => $flat]);
+        // ✅ Step 2: Handle multiple images
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('flats', 'public'); // stores in storage/app/public/flats
+                $flat->images()->create(['image' => $path]);
+            }
+        }
+
+        // ✅ Step 3: Return flat with images
+        return response()->json([
+            'message' => 'Flat created successfully',
+            'flat' => $flat->load('images'),
+        ]);
     }
+
+
 
     // 🔹 Update flat
     public function update(Request $request, $id)
