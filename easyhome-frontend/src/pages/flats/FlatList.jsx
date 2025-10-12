@@ -18,7 +18,7 @@ const FlatList = () => {
   // 🧠 Load flats
   const fetchFlats = async () => {
     try {
-      const res = await api.get("/api/flats");
+      const res = await api.get("/flats"); // ✅ /api বাদ
       setFlats(res.data);
     } catch (err) {
       console.error("Error loading flats:", err);
@@ -37,17 +37,16 @@ const FlatList = () => {
       setForm({ ...form, [name]: value });
     }
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData();
     formData.append("building_id", 3); // ✅ test value
-    formData.append("flat_number", form.name); // optional placeholder
+    formData.append("flat_number", form.name);
     formData.append("name", form.name);
     formData.append("floor", form.floor);
-    formData.append("rent_amount", form.rent_amount); // ✅ ঠিক নাম ব্যবহার
+    formData.append("rent_amount", form.rent_amount);
     formData.append("size", form.size);
     formData.append("status", form.status);
     if (form.images) {
@@ -55,16 +54,17 @@ const FlatList = () => {
         formData.append("images[]", form.images[i]);
       }
     }
-    
 
     try {
       if (editingId) {
-        await api.post(`/api/flats/${editingId}?_method=PUT`, formData, {
+        // ✅ এখানে /api বাদ
+        await api.post(`/flats/${editingId}?_method=PUT`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         alert("✅ Flat updated successfully!");
       } else {
-        await api.post("/api/flats", formData, {
+        // ✅ এখানে /api বাদ
+        await api.post("/flats", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         alert("✅ Flat added successfully!");
@@ -86,7 +86,6 @@ const FlatList = () => {
       const msg = err.response?.data?.message || "Failed to save flat!";
       alert("❌ " + msg);
     }
-    
   };
 
   const handleEdit = (flat) => {
@@ -96,7 +95,7 @@ const FlatList = () => {
       rent_amount: flat.rent_amount,
       size: flat.size,
       status: flat.status,
-      image: null, // নতুন ফাইল সিলেক্ট করলে সেট হবে
+      image: null,
     });
     setEditingId(flat.id);
     setShowModal(true);
@@ -105,7 +104,8 @@ const FlatList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this flat?")) {
       try {
-        await api.delete(`/api/flats/${id}`);
+        // ✅ এখানে /api বাদ
+        await api.delete(`/flats/${id}`);
         fetchFlats();
       } catch (err) {
         console.error("Delete failed:", err);
@@ -155,21 +155,20 @@ const FlatList = () => {
                   {flat.status}
                 </td>
                 <td>
-  {flat.images && flat.images.length > 0 ? (
-    flat.images.map((img, i) => (
-      <img
-        key={i}
-        src={`http://localhost:8000/storage/${img.image}`}
-        alt="Flat"
-        width="50"
-        className="rounded me-1"
-      />
-    ))
-  ) : (
-    "No Image"
-  )}
-</td>
-
+                  {flat.images && flat.images.length > 0 ? (
+                    flat.images.map((img, i) => (
+                      <img
+                        key={i}
+                        src={`http://localhost:8000/storage/${img.image}`}
+                        alt="Flat"
+                        width="50"
+                        className="rounded me-1"
+                      />
+                    ))
+                  ) : (
+                    "No Image"
+                  )}
+                </td>
                 <td>
                   <Button
                     size="sm"
@@ -262,15 +261,14 @@ const FlatList = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-  <Form.Label>Images</Form.Label>
-  <Form.Control
-    type="file"
-    name="images"
-    multiple  // ✅ allow multiple
-    onChange={handleChange}
-  />
-</Form.Group>
-
+              <Form.Label>Images</Form.Label>
+              <Form.Control
+                type="file"
+                name="images"
+                multiple
+                onChange={handleChange}
+              />
+            </Form.Group>
 
             <Button variant="success" type="submit" className="w-100">
               {editingId ? "Update" : "Add"} Flat

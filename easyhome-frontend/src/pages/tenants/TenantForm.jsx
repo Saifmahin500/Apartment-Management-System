@@ -8,6 +8,8 @@ const TenantForm = ({ tenant, onSuccess }) => {
     email: "",
     phone: "",
     flat_id: "",
+    start_date: "",
+    monthly_rent: "",
   });
 
   const [flats, setFlats] = useState([]);
@@ -17,15 +19,7 @@ const TenantForm = ({ tenant, onSuccess }) => {
     const fetchFlats = async () => {
       try {
         const res = await api.get("/flats/simple");
-
-        // Backend কখনও array দেয়, কখনও object দেয় (data key সহ)
-        const flatData = Array.isArray(res.data)
-          ? res.data
-          : res.data.data
-          ? res.data.data
-          : [];
-
-        setFlats(flatData);
+        setFlats(res.data || []);
       } catch (error) {
         console.error("Error fetching flats:", error);
       }
@@ -36,9 +30,21 @@ const TenantForm = ({ tenant, onSuccess }) => {
     if (tenant) setForm(tenant);
   }, [tenant]);
 
-  // 🔹 Handle Form Input
+  // 🔹 Handle Input Change
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    // ✅ যদি flat select করা হয়
+    if (name === "flat_id") {
+      const selectedFlat = flats.find((flat) => flat.id == value);
+      setForm({
+        ...form,
+        flat_id: value,
+        monthly_rent: selectedFlat ? selectedFlat.rent_amount : "",
+      });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   // 🔹 Submit Form
@@ -100,14 +106,36 @@ const TenantForm = ({ tenant, onSuccess }) => {
           <option value="">Select Flat</option>
           {flats.map((f) => (
             <option key={f.id} value={f.id}>
-              {f.flat_number || f.name}
+              {f.name}
             </option>
           ))}
         </Form.Select>
       </Form.Group>
 
+      <Form.Group className="mb-3">
+        <Form.Label>Start Date</Form.Label>
+        <Form.Control
+          name="start_date"
+          type="date"
+          value={form.start_date}
+          onChange={handleChange}
+          required
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Monthly Rent</Form.Label>
+        <Form.Control
+          name="monthly_rent"
+          type="number"
+          value={form.monthly_rent}
+          onChange={handleChange}
+          required
+        />
+      </Form.Group>
+
       <Button type="submit" variant="success" className="w-100">
-        {tenant ? "Update" : "Add"} Tenant
+        {tenant ? "Update Tenant" : "Add Tenant"}
       </Button>
     </Form>
   );

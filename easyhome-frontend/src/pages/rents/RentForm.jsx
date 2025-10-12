@@ -17,18 +17,32 @@ const RentForm = ({ rent, onSuccess }) => {
 
   const [flats, setFlats] = useState([]);
 
-  // Fetch Flats
+  // 🧠 Fetch Flats
   useEffect(() => {
-    api.get("/flats/simple")
-      .then((res) => {
-        const flatData = Array.isArray(res.data) ? res.data : res.data.data;
-        setFlats(flatData || []);
-      })
+    api
+      .get("/flats/simple")
+      .then((res) => setFlats(res.data || []))
       .catch((err) => console.error("Error loading flats:", err));
   }, []);
-  
 
-  // Update total automatically
+  // ✅ যখন rent prop আসে (Edit করার সময়), form এ সেট করো
+  useEffect(() => {
+    if (rent) {
+      setForm({
+        flat_id: rent.flat_id || "",
+        month: rent.month || "",
+        year: rent.year || new Date().getFullYear(),
+        rent_amount: rent.rent_amount || "",
+        utility_amount: rent.utility_amount || "",
+        maintenance_charge: rent.maintenance_charge || "",
+        total_amount: rent.total_amount || "",
+        due_amount: rent.due_amount || "",
+        status: rent.status || "Due",
+      });
+    }
+  }, [rent]);
+
+  // 🧮 Auto Total Calculation
   useEffect(() => {
     const total =
       (parseFloat(form.rent_amount) || 0) +
@@ -37,13 +51,13 @@ const RentForm = ({ rent, onSuccess }) => {
     setForm((prev) => ({ ...prev, total_amount: total }));
   }, [form.rent_amount, form.utility_amount, form.maintenance_charge]);
 
-  // Handle input
+  // ✏️ Handle Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
-  // Handle submit
+  // 💾 Submit Form
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -62,20 +76,14 @@ const RentForm = ({ rent, onSuccess }) => {
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3">
         <Form.Label>Flat</Form.Label>
-        <Form.Select
-  name="flat_id"
-  value={form.flat_id}
-  onChange={handleChange}
-  required
->
-  <option value="">Select Flat</option>
-  {flats.map((f) => (
-    <option key={f.id} value={f.id}>
-      {f.name}
-    </option>
-  ))}
-</Form.Select>
-
+        <Form.Select name="flat_id" value={form.flat_id} onChange={handleChange} required>
+          <option value="">Select Flat</option>
+          {flats.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.name}
+            </option>
+          ))}
+        </Form.Select>
       </Form.Group>
 
       <Form.Group className="mb-3">
@@ -133,20 +141,12 @@ const RentForm = ({ rent, onSuccess }) => {
 
       <Form.Group className="mb-3">
         <Form.Label>Total Amount</Form.Label>
-        <Form.Control
-          type="number"
-          value={form.total_amount}
-          readOnly
-        />
+        <Form.Control type="number" value={form.total_amount} readOnly />
       </Form.Group>
 
       <Form.Group className="mb-3">
         <Form.Label>Status</Form.Label>
-        <Form.Select
-          name="status"
-          value={form.status}
-          onChange={handleChange}
-        >
+        <Form.Select name="status" value={form.status} onChange={handleChange}>
           <option value="Due">Due</option>
           <option value="Paid">Paid</option>
         </Form.Select>

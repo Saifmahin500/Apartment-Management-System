@@ -14,11 +14,21 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SmsGatewayController;
 use App\Http\Controllers\Api\InvoiceController;
 
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// ========== Auth Routes ==========
+/*
+|--------------------------------------------------------------------------
+| 🔐 Auth Routes
+|--------------------------------------------------------------------------
+*/
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -29,21 +39,43 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| 🌐 Public Routes (No Authentication Needed)
+|--------------------------------------------------------------------------
+*/
+Route::get('/flats/simple', [FlatController::class, 'simpleList']); // ✅ For dropdowns
 
+/*
+|--------------------------------------------------------------------------
+| 🔒 Protected Routes (Require Sanctum Auth)
+|--------------------------------------------------------------------------
+*/
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Buildings & Flats
     Route::apiResource('buildings', BuildingController::class);
     Route::apiResource('flats', FlatController::class);
-    Route::get('/flats/simple', [FlatController::class, 'simpleList']);
+
+    // Tenants
     Route::apiResource('tenants', TenantController::class);
+
+    // Rent & Payments
     Route::apiResource('rents', RentController::class);
     Route::post('rents/{rent}/pay', [RentPaymentController::class, 'store']);
     Route::get('rents/{rent}/payments', [RentPaymentController::class, 'getPayments']);
+
+    // Expenses
     Route::apiResource('expense-categories', ExpenseCategoryController::class);
     Route::apiResource('expenses', ExpenseController::class);
+
+    // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications', [NotificationController::class, 'store']);
     Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+
+    // SMS Gateway & Invoices
     Route::apiResource('sms-gateways', SmsGatewayController::class);
     Route::apiResource('invoices', InvoiceController::class);
 });
