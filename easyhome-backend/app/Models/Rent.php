@@ -18,7 +18,7 @@ class Rent extends Model
         'maintenance_charge',
         'total_amount',
         'due_amount',
-        'status'
+        'status',
     ];
 
     public function flat()

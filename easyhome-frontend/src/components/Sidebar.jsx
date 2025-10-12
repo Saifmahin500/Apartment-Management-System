@@ -8,6 +8,8 @@ import {
   Settings,
   LogOut,
   Home,
+  BarChart,
+  Building2,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -20,6 +22,11 @@ const Sidebar = () => {
     navigate("/");
   };
 
+  const linkClass = ({ isActive }) =>
+    `text-decoration-none d-flex align-items-center mb-3 ${
+      isActive ? "fw-bold text-warning" : "text-white"
+    }`;
+
   return (
     <div
       className="d-flex flex-column bg-dark text-white p-3"
@@ -27,109 +34,56 @@ const Sidebar = () => {
     >
       <h4 className="text-center mb-4">🏢 EasyHome</h4>
 
-      {/* Common Links */}
-      <NavLink
-        to="/dashboard"
-        className={({ isActive }) =>
-          `text-decoration-none d-flex align-items-center mb-3 ${
-            isActive ? "fw-bold text-warning" : "text-white"
-          }`
-        }
-      >
+      {/* ================= Common Links ================= */}
+      <NavLink to="/dashboard" className={linkClass}>
         <LayoutDashboard size={18} className="me-2" />
         Dashboard
       </NavLink>
 
-      
-
-      {/* ADMIN / OWNER Links */}
+      {/* ================= Admin / Owner Links ================= */}
       {(role === "admin" || role === "owner") && (
         <>
-          <NavLink
-            to="/dashboard/tenants"
-            className={({ isActive }) =>
-              `text-decoration-none d-flex align-items-center mb-3 ${
-                isActive ? "fw-bold text-warning" : "text-white"
-              }`
-            }
-          >
+          <NavLink to="/dashboard/flats" className={linkClass}>
+            <Building2 size={18} className="me-2" />
+            Flats
+          </NavLink>
+
+          <NavLink to="/dashboard/tenants" className={linkClass}>
             <Users size={18} className="me-2" />
             Tenants
           </NavLink>
 
-          <NavLink
-  to="/dashboard/flats"
-  className={({ isActive }) =>
-    `text-decoration-none d-flex align-items-center mb-3 ${
-      isActive ? "fw-bold text-warning" : "text-white"
-    }`
-  }
->
-  🏠 Flats
-</NavLink>
-
-
-          <NavLink
-            to="/dashboard/rents"
-            className={({ isActive }) =>
-              `text-decoration-none d-flex align-items-center mb-3 ${
-                isActive ? "fw-bold text-warning" : "text-white"
-              }`
-            }
-          >
+          <NavLink to="/dashboard/rents" className={linkClass}>
             <DollarSign size={18} className="me-2" />
             Rent / Bills
           </NavLink>
 
-          <NavLink
-            to="/dashboard/expenses"
-            className={({ isActive }) =>
-              `text-decoration-none d-flex align-items-center mb-3 ${
-                isActive ? "fw-bold text-warning" : "text-white"
-              }`
-            }
-          >
+          <NavLink to="/dashboard/rents/report" className={linkClass}>
+            <BarChart size={18} className="me-2" />
+            Rent Report
+          </NavLink>
+
+          <NavLink to="/dashboard/expenses" className={linkClass}>
             <FileText size={18} className="me-2" />
             Expenses
           </NavLink>
 
-          <NavLink
-            to="/dashboard/invoices"
-            className={({ isActive }) =>
-              `text-decoration-none d-flex align-items-center mb-3 ${
-                isActive ? "fw-bold text-warning" : "text-white"
-              }`
-            }
-          >
+          <NavLink to="/dashboard/invoices" className={linkClass}>
             <FileText size={18} className="me-2" />
             Invoices
           </NavLink>
         </>
       )}
 
-      {/* TENANT Links */}
+      {/* ================= Tenant Links ================= */}
       {role === "tenant" && (
         <>
-          <NavLink
-            to="/dashboard/tenant"
-            className={({ isActive }) =>
-              `text-decoration-none d-flex align-items-center mb-3 ${
-                isActive ? "fw-bold text-warning" : "text-white"
-              }`
-            }
-          >
+          <NavLink to="/dashboard/tenant" className={linkClass}>
             <Home size={18} className="me-2" />
             My Dashboard
           </NavLink>
 
-          <NavLink
-            to="/dashboard/profile"
-            className={({ isActive }) =>
-              `text-decoration-none d-flex align-items-center mb-3 ${
-                isActive ? "fw-bold text-warning" : "text-white"
-              }`
-            }
-          >
+          <NavLink to="/dashboard/profile" className={linkClass}>
             <Settings size={18} className="me-2" />
             My Profile
           </NavLink>
@@ -138,7 +92,7 @@ const Sidebar = () => {
 
       <hr className="text-secondary" />
 
-      {/* Logout */}
+      {/* ================= Logout Button ================= */}
       <button onClick={handleLogout} className="btn btn-danger mt-auto">
         <LogOut size={18} className="me-2" />
         Logout

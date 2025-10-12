@@ -3,58 +3,86 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Rent;
 use Illuminate\Http\Request;
+use App\Models\Rent;
 
 class RentController extends Controller
 {
+    /**
+     * 🔹 Get all rents with related flat info
+     */
     public function index()
     {
-        return response()->json(Rent::with('flat')->get());
+        $rents = Rent::with('flat')->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
+        return response()->json($rents);
     }
 
+    /**
+     * 🔹 Store a new rent record
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'flat_id' => 'required|exists:flats,id',
-            'month' => 'required|string',
+            'month' => 'required|string|max:20',
             'year' => 'required|integer',
-            'rent_amount' => 'required|numeric',
+            'rent_amount' => 'required|numeric|min:0',
+            'utility_amount' => 'nullable|numeric|min:0',
+            'maintenance_charge' => 'nullable|numeric|min:0',
+            'status' => 'required|in:Paid,Due',
         ]);
 
-        $total = $request->rent_amount + $request->utility_amount + $request->maintenance_charge;
+        $total = ($validated['rent_amount'] ?? 0)
+            + ($validated['utility_amount'] ?? 0)
+            + ($validated['maintenance_charge'] ?? 0);
 
-        $rent = Rent::create([
-            'flat_id' => $request->flat_id,
-            'month' => $request->month,
-            'year' => $request->year,
-            'rent_amount' => $request->rent_amount,
-            'utility_amount' => $request->utility_amount ?? 0,
-            'maintenance_charge' => $request->maintenance_charge ?? 0,
-            'total_amount' => $total,
-            'due_amount' => $total,
-            'status' => 'Due'
-        ]);
+        $validated['total_amount'] = $total;
+        $validated['due_amount'] = $validated['status'] === 'Due' ? $total : 0;
 
-        return response()->json(['message' => 'Rent record created successfully', 'data' => $rent]);
+        $rent = Rent::create($validated);
+
+        return response()->json([
+            'message' => 'Rent added successfully',
+            'rent' => $rent
+        ], 201);
     }
 
-    public function show($id)
-    {
-        return response()->json(Rent::with(['flat', 'payments'])->findOrFail($id));
-    }
-
+    /**
+     * 🔹 Update rent record
+     */
     public function update(Request $request, $id)
     {
         $rent = Rent::findOrFail($id);
-        $rent->update($request->all());
-        return response()->json(['message' => 'Rent updated successfully', 'data' => $rent]);
+
+        $validated = $request->validate([
+            'month' => 'required|string|max:20',
+            'year' => 'required|integer',
+            'rent_amount' => 'required|numeric|min:0',
+            'utility_amount' => 'nullable|numeric|min:0',
+            'maintenance_charge' => 'nullable|numeric|min:0',
+            'status' => 'in:Paid,Due',
+        ]);
+
+        $total = ($validated['rent_amount'] ?? 0)
+            + ($validated['utility_amount'] ?? 0)
+            + ($validated['maintenance_charge'] ?? 0);
+
+        $validated['total_amount'] = $total;
+        $validated['due_amount'] = $validated['status'] === 'Due' ? $total : 0;
+
+        $rent->update($validated);
+
+        return response()->json(['message' => 'Rent updated successfully', 'rent' => $rent]);
     }
 
+    /**
+     * 🔹 Delete rent record
+     */
     public function destroy($id)
     {
         $rent = Rent::findOrFail($id);
         $rent->delete();
+
         return response()->json(['message' => 'Rent deleted successfully']);
     }
 }

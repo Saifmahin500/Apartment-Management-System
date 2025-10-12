@@ -3,46 +3,60 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\RentPayment;
 use App\Models\Rent;
-use Illuminate\Http\Request;
 
 class RentPaymentController extends Controller
 {
-    public function index()
+    /**
+     * 🔹 Store new payment record for a rent
+     */
+    public function store(Request $request, $rentId)
     {
-        return response()->json(RentPayment::with('rent')->get());
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'rent_id' => 'required|exists:rents,id',
-            'amount_paid' => 'required|numeric',
-            'payment_method' => 'nullable|string',
+        $validated = $request->validate([
+            'amount_paid' => 'required|numeric|min:1',
+            'payment_method' => 'required|string|max:50',
+            'transaction_id' => 'nullable|string|max:100',
             'payment_date' => 'required|date',
         ]);
 
-        $payment = RentPayment::create($request->all());
+        $rent = Rent::findOrFail($rentId);
 
-        // update due balance
-        $rent = Rent::find($request->rent_id);
-        $rent->due_amount -= $request->amount_paid;
-        $rent->status = $rent->due_amount <= 0 ? 'Paid' : 'Due';
-        $rent->save();
+        // Create payment entry
+        $payment = RentPayment::create([
+            'rent_id' => $rent->id,
+            'amount_paid' => $validated['amount_paid'],
+            'payment_method' => $validated['payment_method'],
+            'transaction_id' => $validated['transaction_id'] ?? null,
+            'payment_date' => $validated['payment_date'],
+        ]);
 
-        return response()->json(['message' => 'Payment added successfully', 'data' => $payment]);
+        // Update rent info
+        $due = max(0, ($rent->due_amount ?? 0) - $validated['amount_paid']);
+        $status = $due <= 0 ? 'Paid' : 'Due';
+
+        $rent->update([
+            'due_amount' => $due,
+            'status' => $status,
+        ]);
+
+        return response()->json([
+            'message' => 'Payment recorded successfully',
+            'payment' => $payment,
+            'rent' => $rent
+        ]);
     }
 
-    public function show($id)
+    /**
+     * 🔹 Get all payments for a rent
+     */
+    public function getPayments($rentId)
     {
-        return response()->json(RentPayment::with('rent')->findOrFail($id));
-    }
+        $payments = RentPayment::where('rent_id', $rentId)
+            ->orderBy('payment_date', 'desc')
+            ->get();
 
-    public function destroy($id)
-    {
-        $payment = RentPayment::findOrFail($id);
-        $payment->delete();
-        return response()->json(['message' => 'Payment deleted successfully']);
+        return response()->json($payments);
     }
 }

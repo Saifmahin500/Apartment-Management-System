@@ -9,29 +9,51 @@ const TenantForm = ({ tenant, onSuccess }) => {
     phone: "",
     flat_id: "",
   });
+
   const [flats, setFlats] = useState([]);
 
+  // 🔹 Fetch Flats
   useEffect(() => {
-    api.get("/flats").then((res) => {
-      const flatData = Array.isArray(res.data) ? res.data : res.data.data;
-      setFlats(flatData || []);
-    });
+    const fetchFlats = async () => {
+      try {
+        const res = await api.get("/flats/simple");
+
+        // Backend কখনও array দেয়, কখনও object দেয় (data key সহ)
+        const flatData = Array.isArray(res.data)
+          ? res.data
+          : res.data.data
+          ? res.data.data
+          : [];
+
+        setFlats(flatData);
+      } catch (error) {
+        console.error("Error fetching flats:", error);
+      }
+    };
+
+    fetchFlats();
+
     if (tenant) setForm(tenant);
   }, [tenant]);
-  
 
+  // 🔹 Handle Form Input
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // 🔹 Submit Form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (tenant) {
-      await api.put(`/tenants/${tenant.id}`, form);
-    } else {
-      await api.post("/tenants", form);
+    try {
+      if (tenant) {
+        await api.put(`/tenants/${tenant.id}`, form);
+      } else {
+        await api.post("/tenants", form);
+      }
+      onSuccess();
+    } catch (error) {
+      console.error("Error saving tenant:", error);
     }
-    onSuccess();
   };
 
   return (
@@ -78,7 +100,7 @@ const TenantForm = ({ tenant, onSuccess }) => {
           <option value="">Select Flat</option>
           {flats.map((f) => (
             <option key={f.id} value={f.id}>
-              {f.name}
+              {f.flat_number || f.name}
             </option>
           ))}
         </Form.Select>

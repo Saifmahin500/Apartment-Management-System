@@ -12,11 +12,16 @@ class FlatController extends Controller
     // 🔹 Get all flats
     public function index()
     {
-        // Eager load the 'images' relation
         $flats = Flat::with('images')->get();
-
         return response()->json($flats);
     }
+    public function simpleList()
+{
+    $flats = \App\Models\Flat::select('id', 'name', 'status')->get();
+    return response()->json($flats);
+}
+
+
 
 
     // 🔹 Store flat

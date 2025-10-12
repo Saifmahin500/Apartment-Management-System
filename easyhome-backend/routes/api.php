@@ -33,9 +33,11 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('buildings', BuildingController::class);
     Route::apiResource('flats', FlatController::class);
+    Route::get('/flats/simple', [FlatController::class, 'simpleList']);
     Route::apiResource('tenants', TenantController::class);
     Route::apiResource('rents', RentController::class);
-    Route::apiResource('rent-payments', RentPaymentController::class);
+    Route::post('rents/{rent}/pay', [RentPaymentController::class, 'store']);
+    Route::get('rents/{rent}/payments', [RentPaymentController::class, 'getPayments']);
     Route::apiResource('expense-categories', ExpenseCategoryController::class);
     Route::apiResource('expenses', ExpenseController::class);
     Route::get('/notifications', [NotificationController::class, 'index']);
