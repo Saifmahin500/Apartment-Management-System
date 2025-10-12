@@ -47,6 +47,40 @@ class RentController extends Controller
         ], 201);
     }
 
+    public function pay(Request $request, $id)
+    {
+        $rent = Rent::findOrFail($id);
+
+        // 🧩 Validate inputs
+        $validated = $request->validate([
+            'amount_paid' => 'required|numeric|min:1',
+            'payment_method' => 'required|string',
+            'payment_date' => 'required|date',
+            'transaction_id' => 'nullable|string',
+            'bank_name' => 'nullable|string',
+            'account_holder' => 'nullable|string',
+            'account_number' => 'nullable|string',
+        ]);
+
+        // 🧠 Save payment info to rents table
+        $rent->update([
+            'amount_paid'     => $validated['amount_paid'],
+            'payment_method'  => $validated['payment_method'],
+            'transaction_id'  => $validated['transaction_id'] ?? null,
+            'bank_name'       => $validated['bank_name'] ?? null,
+            'account_holder'  => $validated['account_holder'] ?? null,
+            'account_number'  => $validated['account_number'] ?? null,
+            'payment_date'    => $validated['payment_date'],
+            'status'          => 'Paid',
+        ]);
+
+        return response()->json([
+            'message' => '✅ Rent payment successful!',
+            'rent' => $rent,
+        ], 200);
+    }
+
+
     /**
      * 🔹 Update rent record
      */

@@ -3,60 +3,61 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Invoice;
-use App\Models\Rent;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\Invoice;
+use App\Models\Flat;
+use App\Models\Tenant;
 
 class InvoiceController extends Controller
 {
-    // Get all invoices
     public function index()
     {
-        return response()->json(Invoice::with('rent')->latest()->get());
+        $invoices = Invoice::with(['flat', 'tenant'])->orderBy('id', 'desc')->get();
+        return response()->json($invoices);
     }
 
-    // Create a new invoice (for rent)
     public function store(Request $request)
     {
         $request->validate([
-            'rent_id' => 'required|exists:rents,id',
-            'invoice_date' => 'required|date'
+            'flat_id' => 'required|exists:flats,id',
+            'tenant_id' => 'required|exists:tenants,id',
+            'total_amount' => 'required|numeric|min:0',
+            'due_date' => 'required|date',
+            'notes' => 'nullable|string',
         ]);
-
-        // Generate a unique invoice number
-        $invoiceNo = 'INV-' . strtoupper(Str::random(8));
 
         $invoice = Invoice::create([
-            'rent_id' => $request->rent_id,
-            'invoice_no' => $invoiceNo,
-            'invoice_date' => $request->invoice_date,
-            'pdf_url' => $request->pdf_url ?? null,
+            'invoice_number' => 'INV-' . now()->format('YmdHis'),
+            'flat_id' => $request->flat_id,
+            'tenant_id' => $request->tenant_id,
+            'total_amount' => $request->total_amount,
+            'due_date' => $request->due_date,
+            'status' => 'Unpaid',
+            'notes' => $request->notes,
         ]);
 
-        return response()->json(['message' => 'Invoice created successfully', 'data' => $invoice]);
+        return response()->json(['message' => 'Invoice created successfully', 'invoice' => $invoice]);
     }
 
-    // Show single invoice
-    public function show($id)
-    {
-        $invoice = Invoice::with('rent')->findOrFail($id);
-        return response()->json($invoice);
-    }
-
-    // Update invoice (for example, update PDF link)
     public function update(Request $request, $id)
     {
         $invoice = Invoice::findOrFail($id);
-        $invoice->update($request->all());
-        return response()->json(['message' => 'Invoice updated successfully', 'data' => $invoice]);
+    
+        $invoice->update([
+            'status' => $request->status,
+            'notes' => $request->notes,
+            'paid_at' => $request->status === 'Paid' ? now() : null,
+        ]);
+    
+        return response()->json(['message' => 'Invoice updated successfully']);
     }
+    
 
-    // Delete invoice
     public function destroy($id)
     {
         $invoice = Invoice::findOrFail($id);
         $invoice->delete();
-        return response()->json(['message' => 'Invoice deleted']);
+        return response()->json(['message' => 'Invoice deleted successfully']);
     }
 }
+

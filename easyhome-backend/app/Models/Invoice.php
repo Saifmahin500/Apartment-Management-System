@@ -10,14 +10,24 @@ class Invoice extends Model
     use HasFactory;
 
     protected $fillable = [
-        'rent_id',
-        'invoice_no',
-        'invoice_date',
-        'pdf_url'
+        'invoice_number',
+        'flat_id',
+        'tenant_id',
+        'total_amount',
+        'status',
+        'due_date',
+        'paid_at',
+        'notes'
     ];
 
-    public function rent()
+    public function flat()
     {
-        return $this->belongsTo(Rent::class);
+        return $this->belongsTo(Flat::class);
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 }
+

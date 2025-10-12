@@ -60,6 +60,8 @@ const TenantList = () => {
             <th>Email</th>
             <th>Phone</th>
             <th>Flat</th>
+            <th>Start Date</th>
+            <th>End Date</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -71,6 +73,8 @@ const TenantList = () => {
               <td>{t.email}</td>
               <td>{t.phone}</td>
               <td>{t.flat?.name || "-"}</td>
+              <td>{t.start_date}</td>
+              <td>{t.end_date}</td>
               <td>
                 <Button variant="primary" size="sm" onClick={() => handleEdit(t)}>
                   Edit

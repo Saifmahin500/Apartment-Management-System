@@ -10,26 +10,15 @@ class Expense extends Model
     use HasFactory;
 
     protected $fillable = [
-        'apartment_id',
         'category_id',
+        'title',
         'amount',
-        'note',
-        'expense_date',
-        'created_by'
+        'date',
+        'description',
     ];
 
     public function category()
     {
-        return $this->belongsTo(ExpenseCategory::class, 'category_id');
-    }
-
-    public function apartment()
-    {
-        return $this->belongsTo(Building::class, 'apartment_id');
-    }
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(ExpenseCategory::class);
     }
 }

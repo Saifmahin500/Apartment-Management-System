@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\ExpenseCategory;
 use Illuminate\Http\Request;
+use App\Models\ExpenseCategory;
 
 class ExpenseCategoryController extends Controller
 {
@@ -17,25 +17,21 @@ class ExpenseCategoryController extends Controller
     {
         $request->validate(['name' => 'required|string|max:255']);
         $category = ExpenseCategory::create($request->all());
-        return response()->json(['message' => 'Category created', 'data' => $category]);
-    }
-
-    public function show($id)
-    {
-        return response()->json(ExpenseCategory::findOrFail($id));
+        return response()->json(['message' => 'Category added successfully', 'category' => $category]);
     }
 
     public function update(Request $request, $id)
     {
         $category = ExpenseCategory::findOrFail($id);
+        $request->validate(['name' => 'required|string|max:255']);
         $category->update($request->all());
-        return response()->json(['message' => 'Category updated', 'data' => $category]);
+        return response()->json(['message' => 'Category updated successfully']);
     }
 
     public function destroy($id)
     {
         $category = ExpenseCategory::findOrFail($id);
         $category->delete();
-        return response()->json(['message' => 'Category deleted']);
+        return response()->json(['message' => 'Category deleted successfully']);
     }
 }

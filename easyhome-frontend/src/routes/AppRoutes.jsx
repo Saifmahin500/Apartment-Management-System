@@ -17,7 +17,11 @@ import FlatList from "../pages/flats/FlatList";
 import TenantList from "../pages/tenants/TenantList";
 import TenantDashboard from "../pages/tenants/TenantDashboard";
 import RentList from "../pages/rents/RentList";
-import RentReport from "../pages/rents/RentReport";  // ✅ Rent Report Added
+import RentReport from "../pages/rents/RentReport";
+
+// 💰 Expense Module (New)
+import ExpenseList from "../pages/expenses/ExpenseList";
+import InvoiceList from "../pages/invoices/InvoiceList";
 
 const AppRoutes = () => {
   return (
@@ -90,7 +94,27 @@ const AppRoutes = () => {
             }
           />
 
-          {/* 👤 Tenant Dashboard */}
+          {/* 💵 Expense Management */}
+          <Route
+            path="expenses"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "owner"]}>
+                <ExpenseList />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="invoices"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "owner"]}>
+                <InvoiceList />
+              </ProtectedRoute>
+            }
+          />
+
+
+          {/* 🧑‍💼 Tenant Dashboard */}
           <Route
             path="tenant"
             element={

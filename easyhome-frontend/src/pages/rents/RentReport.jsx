@@ -66,12 +66,12 @@ const RentReport = () => {
           ))}
         </Form.Select>
 
-        <Form.Control
+        {/* <Form.Control
           type="number"
           placeholder="Enter Year"
           value={filter.year}
           onChange={(e) => setFilter({ ...filter, year: e.target.value })}
-        />
+        /> */}
       </div>
 
       {/* Summary Section */}

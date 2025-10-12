@@ -56,6 +56,8 @@ const RentList = () => {
             <th>Month</th>
             <th>Year</th>
             <th>Rent</th>
+            <th>Utility</th>
+            <th>Maintenance</th>
             <th>Total</th>
             <th>Status</th>
             <th>Actions</th>
@@ -74,6 +76,8 @@ const RentList = () => {
                 <td>{r.month}</td>
                 <td>{r.year}</td>
                 <td>{r.rent_amount}</td>
+                <td>{r.utility_amount}</td>
+                <td>{r.maintenance_charge}</td>
                 <td>{r.total_amount}</td>
                 <td>
                   <span

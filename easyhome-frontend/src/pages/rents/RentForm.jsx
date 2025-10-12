@@ -5,7 +5,7 @@ import api from "../../services/api";
 const RentForm = ({ rent, onSuccess }) => {
   const [form, setForm] = useState({
     flat_id: "",
-    month: "",
+    month: new Date().toLocaleString("default", { month: "long" }),
     year: new Date().getFullYear(),
     rent_amount: "",
     utility_amount: "",
@@ -25,7 +25,7 @@ const RentForm = ({ rent, onSuccess }) => {
       .catch((err) => console.error("Error loading flats:", err));
   }, []);
 
-  // ✅ যখন rent prop আসে (Edit করার সময়), form এ সেট করো
+  // ✅ যখন rent prop আসে (Edit করার সময়)
   useEffect(() => {
     if (rent) {
       setForm({
@@ -54,7 +54,18 @@ const RentForm = ({ rent, onSuccess }) => {
   // ✏️ Handle Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+
+    // ✅ যদি flat select করা হয় → সেই flat এর rent_amount আনো
+    if (name === "flat_id") {
+      const selectedFlat = flats.find((flat) => flat.id == value);
+      setForm({
+        ...form,
+        flat_id: value,
+        rent_amount: selectedFlat ? selectedFlat.rent_amount : "",
+      });
+    } else {
+      setForm({ ...form, [name]: value });
+    }
   };
 
   // 💾 Submit Form
@@ -74,6 +85,7 @@ const RentForm = ({ rent, onSuccess }) => {
 
   return (
     <Form onSubmit={handleSubmit}>
+      {/* 🏢 Flat */}
       <Form.Group className="mb-3">
         <Form.Label>Flat</Form.Label>
         <Form.Select name="flat_id" value={form.flat_id} onChange={handleChange} required>
@@ -86,17 +98,27 @@ const RentForm = ({ rent, onSuccess }) => {
         </Form.Select>
       </Form.Group>
 
+      {/* 🗓 Month */}
       <Form.Group className="mb-3">
         <Form.Label>Month</Form.Label>
-        <Form.Control
-          name="month"
-          value={form.month}
-          onChange={handleChange}
-          placeholder="e.g. January"
-          required
-        />
+        <Form.Select name="month" value={form.month} onChange={handleChange} required>
+          <option value="">Select Month</option>
+          <option value="January">January</option>
+          <option value="February">February</option>
+          <option value="March">March</option>
+          <option value="April">April</option>
+          <option value="May">May</option>
+          <option value="June">June</option>
+          <option value="July">July</option>
+          <option value="August">August</option>
+          <option value="September">September</option>
+          <option value="October">October</option>
+          <option value="November">November</option>
+          <option value="December">December</option>
+        </Form.Select>
       </Form.Group>
 
+      {/* 📅 Year */}
       <Form.Group className="mb-3">
         <Form.Label>Year</Form.Label>
         <Form.Control
@@ -108,6 +130,7 @@ const RentForm = ({ rent, onSuccess }) => {
         />
       </Form.Group>
 
+      {/* 💰 Rent Amount */}
       <Form.Group className="mb-3">
         <Form.Label>Rent Amount</Form.Label>
         <Form.Control
@@ -119,6 +142,7 @@ const RentForm = ({ rent, onSuccess }) => {
         />
       </Form.Group>
 
+      {/* 💡 Utility Charge */}
       <Form.Group className="mb-3">
         <Form.Label>Utility Charge</Form.Label>
         <Form.Control
@@ -129,6 +153,7 @@ const RentForm = ({ rent, onSuccess }) => {
         />
       </Form.Group>
 
+      {/* 🧰 Maintenance Charge */}
       <Form.Group className="mb-3">
         <Form.Label>Maintenance Charge</Form.Label>
         <Form.Control
@@ -139,11 +164,13 @@ const RentForm = ({ rent, onSuccess }) => {
         />
       </Form.Group>
 
+      {/* 🧮 Total */}
       <Form.Group className="mb-3">
         <Form.Label>Total Amount</Form.Label>
         <Form.Control type="number" value={form.total_amount} readOnly />
       </Form.Group>
 
+      {/* 📍 Status */}
       <Form.Group className="mb-3">
         <Form.Label>Status</Form.Label>
         <Form.Select name="status" value={form.status} onChange={handleChange}>
@@ -152,6 +179,7 @@ const RentForm = ({ rent, onSuccess }) => {
         </Form.Select>
       </Form.Group>
 
+      {/* ✅ Submit */}
       <Button type="submit" variant="success" className="w-100">
         {rent ? "Update Rent" : "Add Rent"}
       </Button>

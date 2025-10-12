@@ -9,6 +9,7 @@ const TenantForm = ({ tenant, onSuccess }) => {
     phone: "",
     flat_id: "",
     start_date: "",
+    end_date: "",
     monthly_rent: "",
   });
 
@@ -120,6 +121,17 @@ const TenantForm = ({ tenant, onSuccess }) => {
           value={form.start_date}
           onChange={handleChange}
           required
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>End Date</Form.Label>
+        <Form.Control
+          name="end_date"
+          type="date"
+          value={form.end_date}
+          onChange={handleChange}
+          
         />
       </Form.Group>
 

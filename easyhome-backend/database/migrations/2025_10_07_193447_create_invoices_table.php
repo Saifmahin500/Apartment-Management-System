@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('rent_id');
-            $table->string('invoice_no')->unique();
-            $table->date('invoice_date');
-            $table->string('pdf_url')->nullable();
+            $table->string('invoice_number')->unique();
+            $table->foreignId('flat_id')->constrained('flats')->onDelete('cascade');
+            $table->foreignId('tenant_id')->constrained('tenants')->onDelete('cascade');
+            $table->decimal('total_amount', 10, 2);
+            $table->enum('status', ['Paid', 'Unpaid'])->default('Unpaid');
+            $table->date('due_date');
+            $table->timestamp('paid_at')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
-
-            $table->foreign('rent_id')->references('id')->on('rents')->onDelete('cascade');
         });
     }
 
