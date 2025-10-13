@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Invoice;
 use App\Models\Flat;
 use App\Models\Tenant;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Mail\InvoiceMail;
+use Illuminate\Support\Facades\Mail;
 
 class InvoiceController extends Controller
 {
@@ -39,19 +42,34 @@ class InvoiceController extends Controller
         return response()->json(['message' => 'Invoice created successfully', 'invoice' => $invoice]);
     }
 
+    public function downloadPdf($id)
+    {
+        $invoice = Invoice::with(['flat', 'tenant'])->findOrFail($id);
+
+        $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
+        return $pdf->download($invoice->invoice_number . '.pdf');
+    }
+
+            public function sendEmail($id)
+        {
+            $invoice = Invoice::with(['flat', 'tenant'])->findOrFail($id);
+            Mail::to($invoice->tenant->email)->send(new InvoiceMail($invoice));
+            return response()->json(['message' => 'Invoice emailed successfully']);
+        }
+
     public function update(Request $request, $id)
     {
         $invoice = Invoice::findOrFail($id);
-    
+
         $invoice->update([
             'status' => $request->status,
             'notes' => $request->notes,
             'paid_at' => $request->status === 'Paid' ? now() : null,
         ]);
-    
+
         return response()->json(['message' => 'Invoice updated successfully']);
     }
-    
+
 
     public function destroy($id)
     {
@@ -59,5 +77,15 @@ class InvoiceController extends Controller
         $invoice->delete();
         return response()->json(['message' => 'Invoice deleted successfully']);
     }
+
+    public function filter(Request $request)
+{
+    $query = Invoice::with(['flat', 'tenant']);
+    if ($request->month && $request->year) {
+        $query->whereMonth('due_date', $request->month)
+              ->whereYear('due_date', $request->year);
+    }
+    return response()->json($query->get());
 }
 
+}

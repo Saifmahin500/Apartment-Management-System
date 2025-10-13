@@ -78,4 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // SMS Gateway & Invoices
     Route::apiResource('sms-gateways', SmsGatewayController::class);
     Route::apiResource('invoices', InvoiceController::class);
+    Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'downloadPdf']);
+    Route::post('/invoices/{id}/email', [InvoiceController::class, 'sendEmail']);
+    Route::get('/invoices/filter', [InvoiceController::class, 'filter']);
+
 });

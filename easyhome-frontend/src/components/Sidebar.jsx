@@ -10,7 +10,9 @@ import {
   Home,
   BarChart,
   Building2,
+  Bell
 } from "lucide-react";
+import NotificationBell from "../components/NotificationBell";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ const Sidebar = () => {
       className="d-flex flex-column bg-dark text-white p-3"
       style={{ minHeight: "100vh", width: "240px" }}
     >
+      {/* ================= Header ================= */}
       <h4 className="text-center mb-4">🏢 EasyHome</h4>
 
       {/* ================= Common Links ================= */}
@@ -72,6 +75,13 @@ const Sidebar = () => {
             <FileText size={18} className="me-2" />
             Invoices
           </NavLink>
+
+          {/* 🔔 Notification Menu Item */}
+          <div className="d-flex align-items-center mb-3">
+            <Bell size={18} className="me-2 text-white" />
+            <span className="me-2">Notification</span>
+            <NotificationBell />
+          </div>
         </>
       )}
 

@@ -3,46 +3,34 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Notification;
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class NotificationController extends Controller
 {
-    // 🔹 Show all notifications for logged user
+    // 🔹 Get all notifications for logged-in user
     public function index(Request $request)
     {
-        $user = $request->user();
-        $notifications = Notification::where('user_id', $user->id)->latest()->get();
+        $userId = $request->user()->id;
+        $notifications = Notification::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return response()->json($notifications);
     }
 
-    // 🔹 Create notification (Admin use)
-    public function store(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'title' => 'required|string|max:255',
-            'message' => 'required|string',
-            'type' => 'required|in:SMS,Email,System'
-        ]);
-
-        $notification = Notification::create($request->all());
-        return response()->json(['message' => 'Notification sent successfully', 'data' => $notification]);
-    }
-
-    // 🔹 Mark notification as read
+    // 🔹 Mark as read
     public function markAsRead($id)
     {
         $notification = Notification::findOrFail($id);
         $notification->update(['status' => 'Read']);
-        return response()->json(['message' => 'Notification marked as read']);
+        return response()->json(['message' => 'Marked as read']);
     }
 
     // 🔹 Delete notification
     public function destroy($id)
     {
-        $notification = Notification::findOrFail($id);
-        $notification->delete();
-        return response()->json(['message' => 'Notification deleted']);
+        Notification::findOrFail($id)->delete();
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }
