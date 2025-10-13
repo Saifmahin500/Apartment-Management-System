@@ -10,6 +10,8 @@ use App\Models\Tenant;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Mail\InvoiceMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\Rent;
+
 
 class InvoiceController extends Controller
 {
@@ -29,10 +31,17 @@ class InvoiceController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $rent = Rent::where('flat_id', $request->flat_id)
+            ->latest()
+            ->first();
+
         $invoice = Invoice::create([
             'invoice_number' => 'INV-' . now()->format('YmdHis'),
             'flat_id' => $request->flat_id,
             'tenant_id' => $request->tenant_id,
+            'rent_amount' => $rent->rent_amount ?? 0,
+            'utility_amount' => $rent->utility_amount ?? 0,
+            'maintenance_charge' => $rent->maintenance_charge ?? 0,
             'total_amount' => $request->total_amount,
             'due_date' => $request->due_date,
             'status' => 'Unpaid',
@@ -44,19 +53,29 @@ class InvoiceController extends Controller
 
     public function downloadPdf($id)
     {
-        $invoice = Invoice::with(['flat', 'tenant'])->findOrFail($id);
-
+        $invoice = Invoice::with(['flat', 'tenant', 'rent'])->findOrFail($id);
         $pdf = Pdf::loadView('invoices.pdf', compact('invoice'));
-        return $pdf->download($invoice->invoice_number . '.pdf');
+        return $pdf->stream('invoice-' . $invoice->invoice_number . '.pdf');
     }
 
-            public function sendEmail($id)
-        {
-            $invoice = Invoice::with(['flat', 'tenant'])->findOrFail($id);
-            Mail::to($invoice->tenant->email)->send(new InvoiceMail($invoice));
-            return response()->json(['message' => 'Invoice emailed successfully']);
-        }
+    public function sendEmail($id)
+    {
+        $invoice = Invoice::with(['flat', 'tenant'])->findOrFail($id);
 
+        // 🧾 Rent Breakdown attach
+        $rent = Rent::where('flat_id', $invoice->flat_id)->latest()->first();
+        $invoice->rent_amount = $rent->rent_amount ?? 0;
+        $invoice->utility_amount = $rent->utility_amount ?? 0;
+        $invoice->maintenance_charge = $rent->maintenance_charge ?? 0;
+
+        
+        $pdf = Pdf::loadView('invoices.pdf', ['invoice' => $invoice]);
+
+     
+        Mail::to($invoice->tenant->email)->send(new InvoiceMail($invoice, $pdf));
+
+        return response()->json(['message' => 'Invoice email sent with PDF attached!']);
+    }
     public function update(Request $request, $id)
     {
         $invoice = Invoice::findOrFail($id);
@@ -79,13 +98,12 @@ class InvoiceController extends Controller
     }
 
     public function filter(Request $request)
-{
-    $query = Invoice::with(['flat', 'tenant']);
-    if ($request->month && $request->year) {
-        $query->whereMonth('due_date', $request->month)
-              ->whereYear('due_date', $request->year);
+    {
+        $query = Invoice::with(['flat', 'tenant']);
+        if ($request->month && $request->year) {
+            $query->whereMonth('due_date', $request->month)
+                ->whereYear('due_date', $request->year);
+        }
+        return response()->json($query->get());
     }
-    return response()->json($query->get());
-}
-
 }

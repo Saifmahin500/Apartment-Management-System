@@ -13,22 +13,15 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SmsGatewayController;
 use App\Http\Controllers\Api\InvoiceController;
+use App\Models\Rent;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-*/
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-/*
-|--------------------------------------------------------------------------
-| 🔐 Auth Routes
-|--------------------------------------------------------------------------
-*/
+
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -46,6 +39,11 @@ Route::prefix('auth')->group(function () {
 */
 Route::get('/flats/simple', [FlatController::class, 'simpleList']); // ✅ For dropdowns
 
+
+Route::get('/rents/latest/{flat_id}', function ($flat_id) {
+    return Rent::where('flat_id', $flat_id)->latest()->first();
+});
+
 /*
 |--------------------------------------------------------------------------
 | 🔒 Protected Routes (Require Sanctum Auth)
@@ -59,6 +57,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Tenants
     Route::apiResource('tenants', TenantController::class);
+    Route::get('/tenants/by-flat/{flat_id}', [TenantController::class, 'byFlat']);
+
 
     // Rent & Payments
     Route::apiResource('rents', RentController::class);
@@ -78,8 +78,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // SMS Gateway & Invoices
     Route::apiResource('sms-gateways', SmsGatewayController::class);
     Route::apiResource('invoices', InvoiceController::class);
-    Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'downloadPdf']);
     Route::post('/invoices/{id}/email', [InvoiceController::class, 'sendEmail']);
     Route::get('/invoices/filter', [InvoiceController::class, 'filter']);
-
 });
+
+Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'downloadPdf']);

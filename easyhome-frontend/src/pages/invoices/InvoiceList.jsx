@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Table, Modal, Badge, Form } from "react-bootstrap";
+import Swal from "sweetalert2";
 import api from "../../services/api";
 import InvoiceForm from "./InvoiceForm";
 
@@ -8,13 +9,41 @@ const InvoiceList = () => {
   const [show, setShow] = useState(false);
   const [editInvoice, setEditInvoice] = useState(null);
   const [filterMonth, setFilterMonth] = useState("");
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
 
-  const fetchInvoices = async () => {
-    const res = await api.get("/invoices");
-    setInvoices(res.data);
+  // 🧾 Toast Setup
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 2500,
+    timerProgressBar: true,
+  });
+
+  const showSuccess = (msg) => {
+    Toast.fire({ icon: "success", title: msg });
   };
 
-  // 🟢 নতুন filter ফাংশন যোগ করো
+  const showError = (msg) => {
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: msg || "Something went wrong!",
+    });
+  };
+
+  // 🟢 Fetch all invoices
+  const fetchInvoices = async () => {
+    try {
+      const res = await api.get("/invoices");
+      setInvoices(res.data);
+    } catch (err) {
+      showError("Failed to fetch invoices.");
+    }
+  };
+
+  // 🟢 Filter invoices by month
   const fetchFilteredInvoices = async () => {
     try {
       if (!filterMonth) {
@@ -24,7 +53,7 @@ const InvoiceList = () => {
       const res = await api.get(`/invoices?month=${filterMonth}`);
       setInvoices(res.data);
     } catch (err) {
-      console.error("Filter fetch error:", err);
+      showError("Failed to filter invoices.");
     }
   };
 
@@ -32,17 +61,35 @@ const InvoiceList = () => {
     fetchInvoices();
   }, []);
 
+  // 🗑️ Delete invoice
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure?")) {
-      await api.delete(`/invoices/${id}`);
-      fetchInvoices();
+    if (window.confirm("Are you sure you want to delete this invoice?")) {
+      try {
+        await api.delete(`/invoices/${id}`);
+        fetchInvoices();
+        showSuccess("Invoice deleted successfully!");
+      } catch (err) {
+        showError("Failed to delete invoice.");
+      }
     }
   };
 
+  // ✅ On add/edit success
   const handleSuccess = () => {
     setShow(false);
     setEditInvoice(null);
     fetchInvoices();
+    showSuccess(editInvoice ? "Invoice updated successfully!" : "Invoice added successfully!");
+  };
+
+  // 📧 Send Email
+  const handleSendEmail = async (id) => {
+    try {
+      await api.post(`/invoices/${id}/email`);
+      showSuccess("Invoice email sent successfully!");
+    } catch (err) {
+      showError("Failed to send invoice email.");
+    }
   };
 
   return (
@@ -54,6 +101,7 @@ const InvoiceList = () => {
         </Button>
       </div>
 
+      {/* 🧩 Filter Section */}
       <div className="d-flex gap-2 mb-3">
         <Form.Select
           value={filterMonth}
@@ -77,9 +125,10 @@ const InvoiceList = () => {
         <Button onClick={fetchFilteredInvoices}>Filter</Button>
       </div>
 
-      <Table bordered hover>
+      {/* 🧾 Invoice Table */}
+      <Table bordered hover responsive>
         <thead>
-          <tr>
+          <tr className="text-center align-middle">
             <th>#</th>
             <th>Invoice No</th>
             <th>Flat</th>
@@ -91,63 +140,70 @@ const InvoiceList = () => {
           </tr>
         </thead>
         <tbody>
-          {invoices.map((inv, i) => (
-            <tr key={inv.id}>
-              <td>{i + 1}</td>
-              <td>{inv.invoice_number}</td>
-              <td>{inv.flat?.name}</td>
-              <td>{inv.tenant?.name}</td>
-              <td>৳{parseFloat(inv.total_amount).toFixed(2)}</td>
-              <td>{inv.due_date}</td>
-              <td>
-                <Badge bg={inv.status === "Paid" ? "success" : "warning"}>
-                  {inv.status}
-                </Badge>
-              </td>
-              <td>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => {
-                    setEditInvoice(inv);
-                    setShow(true);
-                  }}
-                >
-                  Edit
-                </Button>{" "}
-                <Button
-                  size="sm"
-                  variant="danger"
-                  onClick={() => handleDelete(inv.id)}
-                >
-                  Delete
-                </Button>{" "}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() =>
-                    window.open(
-                      `http://localhost:8000/api/invoices/${inv.id}/pdf`,
-                      "_blank"
-                    )
-                  }
-                >
-                  PDF
-                </Button>{" "}
-                <Button
-                  size="sm"
-                  variant="info"
-                  onClick={() => api.post(`/invoices/${inv.id}/email`)}
-                >
-                  Email
-                </Button>
+          {invoices.length > 0 ? (
+            invoices.map((inv, i) => (
+              <tr key={inv.id} className="text-center align-middle">
+                <td>{i + 1}</td>
+                <td>{inv.invoice_number}</td>
+                <td>{inv.flat?.name}</td>
+                <td>{inv.tenant?.name}</td>
+                <td>৳{parseFloat(inv.total_amount).toFixed(2)}</td>
+                <td>{inv.due_date}</td>
+                <td>
+                  <Badge bg={inv.status === "Paid" ? "success" : "warning"}>
+                    {inv.status}
+                  </Badge>
+                </td>
+                <td>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => {
+                      setEditInvoice(inv);
+                      setShow(true);
+                    }}
+                  >
+                    Edit
+                  </Button>{" "}
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    onClick={() => handleDelete(inv.id)}
+                  >
+                    Delete
+                  </Button>{" "}
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setSelectedInvoiceId(inv.id);
+                      setShowPdfModal(true);
+                    }}
+                  >
+                    Invoice
+                  </Button>{" "}
+                  <Button
+                    size="sm"
+                    variant="info"
+                    onClick={() => handleSendEmail(inv.id)}
+                  >
+                    Email
+                  </Button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="8" className="text-center py-4">
+                No invoices found.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </Table>
 
-      <Modal show={show} onHide={() => setShow(false)}>
+      {/* 🟢 Add/Edit Modal */}
+      <Modal show={show} onHide={() => setShow(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>
             {editInvoice ? "Edit Invoice" : "Add Invoice"}
@@ -155,6 +211,31 @@ const InvoiceList = () => {
         </Modal.Header>
         <Modal.Body>
           <InvoiceForm invoice={editInvoice} onSuccess={handleSuccess} />
+        </Modal.Body>
+      </Modal>
+
+      {/* 🧾 PDF Preview Modal */}
+      <Modal
+        show={showPdfModal}
+        onHide={() => setShowPdfModal(false)}
+        size="xl"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Invoice PDF Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedInvoiceId ? (
+            <iframe
+              src={`http://localhost:8000/api/invoices/${selectedInvoiceId}/pdf`}
+              width="100%"
+              height="600px"
+              style={{ border: "none" }}
+              title="Invoice PDF"
+            ></iframe>
+          ) : (
+            <p>Loading PDF...</p>
+          )}
         </Modal.Body>
       </Modal>
     </div>

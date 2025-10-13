@@ -88,4 +88,12 @@ class TenantController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Tenant deleted successfully!']);
     }
+
+    public function byFlat($flat_id)
+        {
+            return response()->json(
+                \App\Models\Tenant::where('flat_id', $flat_id)->get()
+            );
+        }
+
 }

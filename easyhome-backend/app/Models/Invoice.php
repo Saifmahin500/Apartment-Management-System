@@ -29,5 +29,10 @@ class Invoice extends Model
     {
         return $this->belongsTo(Tenant::class);
     }
+    public function rent()
+{
+    return $this->belongsTo(Rent::class, 'flat_id', 'flat_id');
+}
+
 }
 

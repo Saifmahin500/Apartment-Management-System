@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('invoice_number')->unique();
             $table->foreignId('flat_id')->constrained('flats')->onDelete('cascade');
             $table->foreignId('tenant_id')->constrained('tenants')->onDelete('cascade');
+            $table->decimal('rent_amount', 10, 2)->nullable();
+            $table->decimal('utility_amount', 10, 2)->nullable();
+            $table->decimal('maintenance_charge', 10, 2)->nullable();
             $table->decimal('total_amount', 10, 2);
             $table->enum('status', ['Paid', 'Unpaid'])->default('Unpaid');
             $table->date('due_date');

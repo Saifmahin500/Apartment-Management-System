@@ -2,29 +2,39 @@
 
 namespace App\Mail;
 
-use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $invoice;
+    public $pdf;
 
-    public function __construct(Invoice $invoice)
+    public function __construct($invoice, $pdf = null)
     {
         $this->invoice = $invoice;
+        $this->pdf = $pdf;
     }
 
     public function build()
     {
-        $pdf = Pdf::loadView('invoices.pdf', ['invoice' => $this->invoice]);
+        $mail = $this->subject('🧾 Your Invoice from EasyHome')
+                     ->markdown('emails.invoice')
+                     ->with(['invoice' => $this->invoice]);
 
-        return $this->subject('Your Invoice from EasyHome')
-            ->markdown('emails.invoice')
-            ->attachData($pdf->output(), $this->invoice->invoice_number . '.pdf');
+        
+        if ($this->pdf) {
+            $mail->attachData(
+                $this->pdf->output(),
+                'invoice-' . $this->invoice->invoice_number . '.pdf',
+                ['mime' => 'application/pdf']
+            );
+        }
+
+        return $mail;
     }
 }
+
