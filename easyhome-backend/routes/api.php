@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SmsGatewayController;
 use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\SettingsController;
 use App\Models\Rent;
 
 
@@ -51,6 +53,7 @@ Route::get('/rents/latest/{flat_id}', function ($flat_id) {
 */
 Route::middleware('auth:sanctum')->group(function () {
 
+    
     // Buildings & Flats
     Route::apiResource('buildings', BuildingController::class);
     Route::apiResource('flats', FlatController::class);
@@ -80,6 +83,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('invoices', InvoiceController::class);
     Route::post('/invoices/{id}/email', [InvoiceController::class, 'sendEmail']);
     Route::get('/invoices/filter', [InvoiceController::class, 'filter']);
+
+    // Profile Routes
+    Route::get('/profile', [ProfileController::class, 'getProfile']);
+    Route::post('/profile/update', [ProfileController::class, 'updateProfile']);
+    Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
+
+    // Settings Routes
+    Route::get('/settings', [SettingsController::class, 'getSettings']);
+    Route::post('/settings/update', [SettingsController::class, 'updateSettings']);
+
 });
 
 Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'downloadPdf']);

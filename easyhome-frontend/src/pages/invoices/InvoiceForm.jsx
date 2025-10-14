@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Card } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import api from "../../services/api";
 
 const InvoiceForm = ({ invoice, onSuccess }) => {
@@ -14,68 +14,83 @@ const InvoiceForm = ({ invoice, onSuccess }) => {
 
   const [flats, setFlats] = useState([]);
   const [tenants, setTenants] = useState([]);
-  const [rentDetails, setRentDetails] = useState(null); // ✅ rent breakdown রাখার জন্য
+  const [filteredTenants, setFilteredTenants] = useState([]);
 
+  // 🟢 Fetch flats & tenants
   useEffect(() => {
-    api.get("/flats/simple").then((res) => setFlats(res.data));
-    if (invoice) setForm(invoice);
+    const fetchData = async () => {
+      const flatsRes = await api.get("/flats/simple");
+      setFlats(flatsRes.data);
+
+      const tenantsRes = await api.get("/tenants");
+      setTenants(tenantsRes.data);
+
+      // invoice edit হলে form prefill
+      if (invoice) {
+        setForm({
+          flat_id: invoice.flat_id || "",
+          tenant_id: invoice.tenant_id || "",
+          total_amount: invoice.total_amount || "",
+          due_date: invoice.due_date || "",
+          notes: invoice.notes || "",
+          status: invoice.status || "Unpaid",
+        });
+
+        // flat অনুযায়ী tenant filter
+        const flatTenants = tenantsRes.data.filter(
+          (t) => t.flat_id === invoice.flat_id
+        );
+        setFilteredTenants(flatTenants);
+      }
+    };
+    fetchData();
   }, [invoice]);
 
-  // ✅ যখন Flat সিলেক্ট করবে
+  // 🟣 Handle flat change
   const handleFlatChange = async (e) => {
-    const flatId = e.target.value;
-    setForm({ ...form, flat_id: flatId });
+    const selectedFlatId = e.target.value;
+    setForm({ ...form, flat_id: selectedFlatId, tenant_id: "" });
 
-    if (!flatId) return;
+    // ✅ Filter tenants based on selected flat
+    const relatedTenants = tenants.filter((t) => t.flat_id == selectedFlatId);
+    setFilteredTenants(relatedTenants);
 
+    // ✅ Fetch rent info to auto-fill total & status
     try {
-      // Rent থেকে total, status, tenant আনবে
-      const rentRes = await api.get(`/rents/latest/${flatId}`);
-      const rent = rentRes.data;
+      const res = await api.get(`/rents?flat_id=${selectedFlatId}`);
+      const rent = res.data[0];
 
       if (rent) {
         setForm((prev) => ({
           ...prev,
-          total_amount: rent.total_amount || "",
-          status: rent.status || "Unpaid",
-          tenant_id: rent.tenant_id || "",
+          total_amount:
+            (rent.rent_amount || 0) +
+            (rent.utility_amount || 0) +
+            (rent.maintenance_charge || 0),
+          status: rent.status === "Paid" ? "Paid" : "Unpaid",
         }));
-
-        // ✅ rent breakdown details set করো
-        setRentDetails({
-          rent_amount: rent.rent_amount || 0,
-          utility_amount: rent.utility_amount || 0,
-          maintenance_charge: rent.maintenance_charge || 0,
-          total_amount: rent.total_amount || 0,
-        });
       }
-
-      // ✅ Tenant filter করবে ওই flat অনুযায়ী
-      const tenantRes = await api.get(`/tenants/by-flat/${flatId}`);
-      setTenants(tenantRes.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch (err) {
+      console.log("Rent fetch failed", err);
     }
   };
 
+  // 🔵 Handle input change
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ✅ Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (invoice) await api.put(`/invoices/${invoice.id}`, form);
-      else await api.post("/invoices", form);
-      onSuccess();
-    } catch (error) {
-      console.error("Error saving invoice:", error);
-    }
+    if (invoice) await api.put(`/invoices/${invoice.id}`, form);
+    else await api.post("/invoices", form);
+    onSuccess();
   };
 
   return (
     <Form onSubmit={handleSubmit}>
-      {/* 🏢 Flat */}
+      {/* Flat Select */}
       <Form.Group className="mb-3">
         <Form.Label>Flat</Form.Label>
         <Form.Select
@@ -93,7 +108,7 @@ const InvoiceForm = ({ invoice, onSuccess }) => {
         </Form.Select>
       </Form.Group>
 
-      {/* 👤 Tenant */}
+      {/* Tenant Select */}
       <Form.Group className="mb-3">
         <Form.Label>Tenant</Form.Label>
         <Form.Select
@@ -101,9 +116,10 @@ const InvoiceForm = ({ invoice, onSuccess }) => {
           value={form.tenant_id}
           onChange={handleChange}
           required
+          disabled={!filteredTenants.length}
         >
           <option value="">Select Tenant</option>
-          {tenants.map((t) => (
+          {filteredTenants.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
             </option>
@@ -111,7 +127,7 @@ const InvoiceForm = ({ invoice, onSuccess }) => {
         </Form.Select>
       </Form.Group>
 
-      {/* 💰 Total */}
+      {/* Total Amount */}
       <Form.Group className="mb-3">
         <Form.Label>Total Amount</Form.Label>
         <Form.Control
@@ -119,27 +135,11 @@ const InvoiceForm = ({ invoice, onSuccess }) => {
           name="total_amount"
           value={form.total_amount}
           onChange={handleChange}
-          readOnly
+          required
         />
       </Form.Group>
 
-      {/* 🧾 Rent Breakdown Box */}
-      {rentDetails && (
-        <Card className="mb-3 shadow-sm border-success">
-          <Card.Body>
-            <h6 className="fw-bold text-success mb-2">Rent Breakdown</h6>
-            <p className="mb-1">🏠 Rent: ৳{rentDetails.rent_amount}</p>
-            <p className="mb-1">💡 Utility: ৳{rentDetails.utility_amount}</p>
-            <p className="mb-1">🧰 Maintenance: ৳{rentDetails.maintenance_charge}</p>
-            <hr />
-            <p className="fw-bold text-dark">
-              ➕ Total: ৳{rentDetails.total_amount}
-            </p>
-          </Card.Body>
-        </Card>
-      )}
-
-      {/* 📅 Due Date */}
+      {/* Due Date */}
       <Form.Group className="mb-3">
         <Form.Label>Due Date</Form.Label>
         <Form.Control
@@ -151,20 +151,21 @@ const InvoiceForm = ({ invoice, onSuccess }) => {
         />
       </Form.Group>
 
-      {/* 🟡 Status */}
+      {/* Status */}
       <Form.Group className="mb-3">
         <Form.Label>Status</Form.Label>
         <Form.Select
           name="status"
-          value={form.status || "Unpaid"}
+          value={form.status}
           onChange={handleChange}
+          required
         >
           <option value="Unpaid">Unpaid</option>
           <option value="Paid">Paid</option>
         </Form.Select>
       </Form.Group>
 
-      {/* 📝 Notes */}
+      {/* Notes */}
       <Form.Group className="mb-3">
         <Form.Label>Notes</Form.Label>
         <Form.Control

@@ -12,7 +12,7 @@ const InvoiceList = () => {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
 
-  // 🧾 Toast Setup
+  // ✅ SweetAlert Toast
   const Toast = Swal.mixin({
     toast: true,
     position: "top-end",
@@ -21,19 +21,11 @@ const InvoiceList = () => {
     timerProgressBar: true,
   });
 
-  const showSuccess = (msg) => {
-    Toast.fire({ icon: "success", title: msg });
-  };
+  const showSuccess = (msg) => Toast.fire({ icon: "success", title: msg });
+  const showError = (msg) =>
+    Swal.fire({ icon: "error", title: "Oops...", text: msg || "Something went wrong!" });
 
-  const showError = (msg) => {
-    Swal.fire({
-      icon: "error",
-      title: "Oops...",
-      text: msg || "Something went wrong!",
-    });
-  };
-
-  // 🟢 Fetch all invoices
+  // ✅ Fetch all invoices
   const fetchInvoices = async () => {
     try {
       const res = await api.get("/invoices");
@@ -43,16 +35,13 @@ const InvoiceList = () => {
     }
   };
 
-  // 🟢 Filter invoices by month
+  // ✅ Filter invoices by month
   const fetchFilteredInvoices = async () => {
     try {
-      if (!filterMonth) {
-        fetchInvoices();
-        return;
-      }
+      if (!filterMonth) return fetchInvoices();
       const res = await api.get(`/invoices?month=${filterMonth}`);
       setInvoices(res.data);
-    } catch (err) {
+    } catch {
       showError("Failed to filter invoices.");
     }
   };
@@ -61,14 +50,22 @@ const InvoiceList = () => {
     fetchInvoices();
   }, []);
 
-  // 🗑️ Delete invoice
+  // ✅ Delete invoice
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this invoice?")) {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This invoice will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (confirm.isConfirmed) {
       try {
         await api.delete(`/invoices/${id}`);
         fetchInvoices();
         showSuccess("Invoice deleted successfully!");
-      } catch (err) {
+      } catch {
         showError("Failed to delete invoice.");
       }
     }
@@ -82,7 +79,7 @@ const InvoiceList = () => {
     showSuccess(editInvoice ? "Invoice updated successfully!" : "Invoice added successfully!");
   };
 
-  // 📧 Send Email
+  // ✅ Send Email
   const handleSendEmail = async (id) => {
     try {
       await api.post(`/invoices/${id}/email`);
@@ -101,27 +98,16 @@ const InvoiceList = () => {
         </Button>
       </div>
 
-      {/* 🧩 Filter Section */}
+      {/* 🔍 Filter Section */}
       <div className="d-flex gap-2 mb-3">
-        <Form.Select
-          value={filterMonth}
-          onChange={(e) => setFilterMonth(e.target.value)}
-        >
+        <Form.Select value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)}>
           <option value="">All Months</option>
-          <option value="1">January</option>
-          <option value="2">February</option>
-          <option value="3">March</option>
-          <option value="4">April</option>
-          <option value="5">May</option>
-          <option value="6">June</option>
-          <option value="7">July</option>
-          <option value="8">August</option>
-          <option value="9">September</option>
-          <option value="10">October</option>
-          <option value="11">November</option>
-          <option value="12">December</option>
+          {[...Array(12)].map((_, i) => (
+            <option key={i + 1} value={i + 1}>
+              {new Date(0, i).toLocaleString("default", { month: "long" })}
+            </option>
+          ))}
         </Form.Select>
-
         <Button onClick={fetchFilteredInvoices}>Filter</Button>
       </div>
 
@@ -150,43 +136,23 @@ const InvoiceList = () => {
                 <td>৳{parseFloat(inv.total_amount).toFixed(2)}</td>
                 <td>{inv.due_date}</td>
                 <td>
-                  <Badge bg={inv.status === "Paid" ? "success" : "warning"}>
-                    {inv.status}
-                  </Badge>
+                  <Badge bg={inv.status === "Paid" ? "success" : "warning"}>{inv.status}</Badge>
                 </td>
                 <td>
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => {
-                      setEditInvoice(inv);
-                      setShow(true);
-                    }}
-                  >
+                  <Button size="sm" variant="primary" onClick={() => { setEditInvoice(inv); setShow(true); }}>
                     Edit
                   </Button>{" "}
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    onClick={() => handleDelete(inv.id)}
-                  >
+                  <Button size="sm" variant="danger" onClick={() => handleDelete(inv.id)}>
                     Delete
                   </Button>{" "}
                   <Button
                     size="sm"
                     variant="secondary"
-                    onClick={() => {
-                      setSelectedInvoiceId(inv.id);
-                      setShowPdfModal(true);
-                    }}
+                    onClick={() => { setSelectedInvoiceId(inv.id); setShowPdfModal(true); }}
                   >
                     Invoice
                   </Button>{" "}
-                  <Button
-                    size="sm"
-                    variant="info"
-                    onClick={() => handleSendEmail(inv.id)}
-                  >
+                  <Button size="sm" variant="info" onClick={() => handleSendEmail(inv.id)}>
                     Email
                   </Button>
                 </td>
@@ -202,12 +168,10 @@ const InvoiceList = () => {
         </tbody>
       </Table>
 
-      {/* 🟢 Add/Edit Modal */}
+      {/* 🔧 Add/Edit Modal */}
       <Modal show={show} onHide={() => setShow(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>
-            {editInvoice ? "Edit Invoice" : "Add Invoice"}
-          </Modal.Title>
+          <Modal.Title>{editInvoice ? "Edit Invoice" : "Add Invoice"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <InvoiceForm invoice={editInvoice} onSuccess={handleSuccess} />
@@ -215,12 +179,7 @@ const InvoiceList = () => {
       </Modal>
 
       {/* 🧾 PDF Preview Modal */}
-      <Modal
-        show={showPdfModal}
-        onHide={() => setShowPdfModal(false)}
-        size="xl"
-        centered
-      >
+      <Modal show={showPdfModal} onHide={() => setShowPdfModal(false)} size="xl" centered>
         <Modal.Header closeButton>
           <Modal.Title>Invoice PDF Preview</Modal.Title>
         </Modal.Header>

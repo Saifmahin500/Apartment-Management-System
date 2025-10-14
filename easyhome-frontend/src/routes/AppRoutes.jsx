@@ -12,7 +12,7 @@ import DashboardLayout from "../layout/DashboardLayout";
 
 // 📊 Dashboard & Modules
 import DashboardHome from "../pages/dashboard/DashboardHome";
-import Profile from "../pages/dashboard/Profile";
+import ProfilePage from "../pages/Profile/ProfilePage"; 
 import FlatList from "../pages/flats/FlatList";
 import TenantList from "../pages/tenants/TenantList";
 import TenantDashboard from "../pages/tenants/TenantDashboard";
@@ -49,7 +49,7 @@ const AppRoutes = () => {
             path="profile"
             element={
               <ProtectedRoute allowedRoles={["admin", "owner", "tenant"]}>
-                <Profile />
+                <ProfilePage /> 
               </ProtectedRoute>
             }
           />
@@ -104,6 +104,7 @@ const AppRoutes = () => {
             }
           />
 
+          {/* 📜 Invoice Management */}
           <Route
             path="invoices"
             element={
@@ -112,7 +113,6 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
-
 
           {/* 🧑‍💼 Tenant Dashboard */}
           <Route
