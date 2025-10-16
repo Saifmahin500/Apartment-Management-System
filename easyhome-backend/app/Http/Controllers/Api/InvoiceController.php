@@ -31,11 +31,10 @@ class InvoiceController extends Controller
         ]);
 
         $rent = Rent::where('flat_id', $request->flat_id)
-            ->where('tenant_id', $request->tenant_id)
             ->latest()
             ->first();
 
-        
+
         $status = ($rent && $rent->status === 'Paid') ? 'Paid' : 'Unpaid';
 
         $invoice = Invoice::create([
@@ -63,24 +62,38 @@ class InvoiceController extends Controller
 
     public function sendEmail($id)
     {
-        $invoice = Invoice::with(['flat', 'tenant'])->findOrFail($id);
+        try {
+            $invoice = Invoice::with(['flat', 'tenant'])->findOrFail($id);
 
-        // Rent breakdown attach
-        $rent = Rent::where('flat_id', $invoice->flat_id)
-            ->where('tenant_id', $invoice->tenant_id)
-            ->latest()
-            ->first();
+            $rent = Rent::where('flat_id', $invoice->flat_id)->latest()->first();
+            $invoice->rent_amount = $rent->rent_amount ?? 0;
+            $invoice->utility_amount = $rent->utility_amount ?? 0;
+            $invoice->maintenance_charge = $rent->maintenance_charge ?? 0;
 
-        $invoice->rent_amount = $rent->rent_amount ?? 0;
-        $invoice->utility_amount = $rent->utility_amount ?? 0;
-        $invoice->maintenance_charge = $rent->maintenance_charge ?? 0;
+            
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('invoices.pdf', ['invoice' => $invoice]);
 
-        $pdf = Pdf::loadView('invoices.pdf', ['invoice' => $invoice]);
+        
+            if (!$invoice->tenant || !$invoice->tenant->email) {
+                return response()->json([
+                    'message' => 'Tenant email not found!',
+                ], 400);
+            }
 
-        Mail::to($invoice->tenant->email)->send(new InvoiceMail($invoice, $pdf));
+         
+            \Illuminate\Support\Facades\Mail::to($invoice->tenant->email)
+                ->send(new \App\Mail\InvoiceMail($invoice, $pdf));
 
-        return response()->json(['message' => 'Invoice email sent with PDF attached!']);
+            return response()->json(['message' => 'Invoice email sent successfully!']);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Mail error: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Email failed',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
+
 
     public function update(Request $request, $id)
     {

@@ -12,7 +12,7 @@ const InvoiceList = () => {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState(null);
 
-  // ✅ SweetAlert Toast
+  // ✅ Toast Setup
   const Toast = Swal.mixin({
     toast: true,
     position: "top-end",
@@ -23,7 +23,11 @@ const InvoiceList = () => {
 
   const showSuccess = (msg) => Toast.fire({ icon: "success", title: msg });
   const showError = (msg) =>
-    Swal.fire({ icon: "error", title: "Oops...", text: msg || "Something went wrong!" });
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: msg || "Something went wrong!",
+    });
 
   // ✅ Fetch all invoices
   const fetchInvoices = async () => {
@@ -79,13 +83,38 @@ const InvoiceList = () => {
     showSuccess(editInvoice ? "Invoice updated successfully!" : "Invoice added successfully!");
   };
 
-  // ✅ Send Email
+  // ✅ Send Email with loader + success toast
   const handleSendEmail = async (id) => {
+    Swal.fire({
+      title: "Sending invoice...",
+      text: "Please wait while we send the invoice email.",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
-      await api.post(`/invoices/${id}/email`);
-      showSuccess("Invoice email sent successfully!");
+      const res = await api.post(`/invoices/${id}/email`);
+      Swal.close();
+
+      Swal.fire({
+        icon: "success",
+        title: "Email Sent!",
+        text: res.data.message || "Invoice email sent successfully!",
+        showConfirmButton: false,
+        timer: 2000,
+      });
+
+      // 🔁 Reload list (since status updates to 'Sent')
+      fetchInvoices();
     } catch (err) {
-      showError("Failed to send invoice email.");
+      Swal.close();
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: err.response?.data?.message || "Failed to send invoice email.",
+      });
     }
   };
 
@@ -136,10 +165,22 @@ const InvoiceList = () => {
                 <td>৳{parseFloat(inv.total_amount).toFixed(2)}</td>
                 <td>{inv.due_date}</td>
                 <td>
-                  <Badge bg={inv.status === "Paid" ? "success" : "warning"}>{inv.status}</Badge>
+                  <Badge bg={
+                    inv.status === "Paid" ? "success" :
+                    inv.status === "Sent" ? "info" : "warning"
+                  }>
+                    {inv.status}
+                  </Badge>
                 </td>
                 <td>
-                  <Button size="sm" variant="primary" onClick={() => { setEditInvoice(inv); setShow(true); }}>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => {
+                      setEditInvoice(inv);
+                      setShow(true);
+                    }}
+                  >
                     Edit
                   </Button>{" "}
                   <Button size="sm" variant="danger" onClick={() => handleDelete(inv.id)}>
@@ -148,7 +189,10 @@ const InvoiceList = () => {
                   <Button
                     size="sm"
                     variant="secondary"
-                    onClick={() => { setSelectedInvoiceId(inv.id); setShowPdfModal(true); }}
+                    onClick={() => {
+                      setSelectedInvoiceId(inv.id);
+                      setShowPdfModal(true);
+                    }}
                   >
                     Invoice
                   </Button>{" "}

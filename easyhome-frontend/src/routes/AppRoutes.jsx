@@ -22,6 +22,8 @@ import RentReport from "../pages/rents/RentReport";
 // 💰 Expense Module (New)
 import ExpenseList from "../pages/expenses/ExpenseList";
 import InvoiceList from "../pages/invoices/InvoiceList";
+import SettingsPage from "../pages/settings/SettingsPage";
+
 
 const AppRoutes = () => {
   return (
@@ -53,6 +55,15 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
+             {/*  settings */}
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "owner", "tenant"]}>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
 
           {/* 🏘 Flats */}
           <Route

@@ -95,6 +95,11 @@ const Sidebar = () => {
             <Settings size={18} className="me-2" />
             My Profile
           </NavLink>
+            <NavLink to="/dashboard/settings" className={linkClass}>
+            <Settings size={18} className="me-2" />
+            Settings
+          </NavLink>
+
         </>
       )}
 
@@ -111,6 +116,10 @@ const Sidebar = () => {
           <NavLink to="/dashboard/profile" className={linkClass}>
             <UserCircle size={18} className="me-2" />
             My Profile
+          </NavLink>
+          <NavLink to="/dashboard/settings" className={linkClass}>
+            <Settings size={18} className="me-2" />
+            Settings
           </NavLink>
         </>
       )}
