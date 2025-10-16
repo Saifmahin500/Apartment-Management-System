@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\BuildingController;
 use App\Http\Controllers\Api\FlatController;
 use App\Http\Controllers\Api\TenantController;
@@ -52,6 +53,10 @@ Route::get('/rents/latest/{flat_id}', function ($flat_id) {
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/dashboard-summary', [DashboardController::class, 'summary']);
+    Route::get('/dashboard-recent', [DashboardController::class, 'recent']);
+
 
     
     // Buildings & Flats
