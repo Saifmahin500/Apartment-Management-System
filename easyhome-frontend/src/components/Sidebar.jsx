@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -11,13 +11,17 @@ import {
   BarChart,
   Building2,
   Bell,
-  UserCircle
+  UserCircle,
+  Menu,
+  X
 } from "lucide-react";
 import NotificationBell from "../components/NotificationBell";
+import "../app.css"; 
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -26,115 +30,208 @@ const Sidebar = () => {
   };
 
   const linkClass = ({ isActive }) =>
-    `text-decoration-none d-flex align-items-center mb-3 ${
-      isActive ? "fw-bold text-warning" : "text-white"
+    `sidebar-link text-decoration-none d-flex align-items-center px-3 py-2 mb-2 rounded-2 transition ${
+      isActive
+        ? "bg-warning text-dark fw-semibold"
+        : "text-white-50"
     }`;
 
   return (
-    <div
-      className="d-flex flex-column bg-dark text-white p-3"
-      style={{ minHeight: "100vh", width: "240px" }}
-    >
-      {/* ================= Header ================= */}
-      <h4 className="text-center mb-4">🏢 EasyHome</h4>
-
-      {/* ================= Common Links ================= */}
-      <NavLink to="/dashboard" className={linkClass}>
-        <LayoutDashboard size={18} className="me-2" />
-        Dashboard
-      </NavLink>
-
-      {/* ================= Role-based Menu ================= */}
-      {(role === "admin" || role === "owner") && (
-        <>
-          {/* 🏘 Flats */}
-          <NavLink to="/dashboard/flats" className={linkClass}>
-            <Building2 size={18} className="me-2" />
-            Flats
-          </NavLink>
-
-          {/* 👥 Tenants */}
-          <NavLink to="/dashboard/tenants" className={linkClass}>
-            <Users size={18} className="me-2" />
-            Tenants
-          </NavLink>
-
-          {/* 💰 Rent */}
-          <NavLink to="/dashboard/rents" className={linkClass}>
-            <DollarSign size={18} className="me-2" />
-            Rent / Bills
-          </NavLink>
-
-          {/* 📊 Rent Report */}
-          <NavLink to="/dashboard/rents/report" className={linkClass}>
-            <BarChart size={18} className="me-2" />
-            Rent Report
-          </NavLink>
-
-          {/* 💵 Expenses */}
-          <NavLink to="/dashboard/expenses" className={linkClass}>
-            <FileText size={18} className="me-2" />
-            Expenses
-          </NavLink>
-
-          {/* 🧾 Invoices */}
-          <NavLink to="/dashboard/invoices" className={linkClass}>
-            <FileText size={18} className="me-2" />
-            Invoices
-          </NavLink>
-
-          {/* 🔔 Notification */}
-          <div className="d-flex align-items-center mb-3">
-            <Bell size={18} className="me-2 text-white" />
-            <span className="me-2">Notifications</span>
-            <NotificationBell />
-          </div>
-
-          {/* ⚙️ Profile / Settings */}
-          <NavLink to="/dashboard/profile" className={linkClass}>
-            <Settings size={18} className="me-2" />
-            My Profile
-          </NavLink>
-            <NavLink to="/dashboard/settings" className={linkClass}>
-            <Settings size={18} className="me-2" />
-            Settings
-          </NavLink>
-
-        </>
-      )}
-
-      {/* ================= Tenant Menu ================= */}
-      {role === "tenant" && (
-        <>
-          {/* 🏠 Tenant Dashboard */}
-          <NavLink to="/dashboard/tenant" className={linkClass}>
-            <Home size={18} className="me-2" />
-            My Dashboard
-          </NavLink>
-
-          {/* 👤 My Profile */}
-          <NavLink to="/dashboard/profile" className={linkClass}>
-            <UserCircle size={18} className="me-2" />
-            My Profile
-          </NavLink>
-          <NavLink to="/dashboard/settings" className={linkClass}>
-            <Settings size={18} className="me-2" />
-            Settings
-          </NavLink>
-        </>
-      )}
-
-      <hr className="text-secondary mt-4" />
-
-      {/* ================= Logout Button ================= */}
+    <>
+      {/* === Mobile Toggle Button === */}
       <button
-        onClick={handleLogout}
-        className="btn btn-danger mt-auto d-flex align-items-center justify-content-center"
+        className="btn btn-light d-md-none position-fixed"
+        style={{ top: "15px", left: "15px", zIndex: 1100 }}
+        onClick={() => setIsOpen(!isOpen)}
       >
-        <LogOut size={18} className="me-2" />
-        Logout
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
       </button>
-    </div>
+
+      {/* === Overlay for mobile === */}
+      {isOpen && (
+        <div
+          className="d-md-none sidebar-overlay"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* === Sidebar Container === */}
+      <div
+        className={`d-flex flex-column p-4 sidebar-container ${
+          isOpen && window.innerWidth < 768 ? "open" : ""
+        }`}
+      >
+        {/* === Brand Header === */}
+        <div className="sidebar-header">
+          <div style={{ fontSize: "24px", marginBottom: "6px" }}>🏢</div>
+          <span>EasyHome</span>
+        </div>
+
+        {/* === Common Links === */}
+        <div className="sidebar-section">
+          <NavLink
+            to="/dashboard"
+            className={linkClass}
+            onClick={() => setIsOpen(false)}
+          >
+            <LayoutDashboard size={18} className="me-2" />
+            <span>Dashboard</span>
+          </NavLink>
+        </div>
+
+        {/* === Role-based Menus === */}
+        {(role === "admin" || role === "owner") && (
+          <>
+            {/* Properties */}
+            <div className="sidebar-section-title">📦 Properties</div>
+            <div className="sidebar-section">
+              <NavLink
+                to="/dashboard/flats"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <Building2 size={18} className="me-2" />
+                <span>Flats</span>
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/tenants"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <Users size={18} className="me-2" />
+                <span>Tenants</span>
+              </NavLink>
+            </div>
+
+            {/* Finance */}
+            <div className="sidebar-section-title">💰 Finance</div>
+            <div className="sidebar-section">
+              <NavLink
+                to="/dashboard/rents"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <DollarSign size={18} className="me-2" />
+                <span>Rent / Bills</span>
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/rents/report"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <BarChart size={18} className="me-2" />
+                <span>Rent Report</span>
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/expenses"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <FileText size={18} className="me-2" />
+                <span>Expenses</span>
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/invoices"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <FileText size={18} className="me-2" />
+                <span>Invoices</span>
+              </NavLink>
+            </div>
+
+            {/* Notifications */}
+            <div className="sidebar-section-title">🔔 Alerts</div>
+            <div className="sidebar-section">
+              <div className="d-flex align-items-center px-3 py-2 rounded-2 text-white-50">
+                <Bell size={18} className="me-2" />
+                <span className="flex-grow-1">Notifications</span>
+                <NotificationBell />
+              </div>
+            </div>
+
+            {/* Account */}
+            <div className="sidebar-section-title">⚙️ Account</div>
+            <div className="sidebar-section">
+              <NavLink
+                to="/dashboard/profile"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <UserCircle size={18} className="me-2" />
+                <span>My Profile</span>
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/settings"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <Settings size={18} className="me-2" />
+                <span>Settings</span>
+              </NavLink>
+            </div>
+          </>
+        )}
+
+        {/* === Tenant Menu === */}
+        {role === "tenant" && (
+          <>
+            <div className="sidebar-section-title">🏠 My Space</div>
+            <div className="sidebar-section">
+              <NavLink
+                to="/dashboard/tenant"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <Home size={18} className="me-2" />
+                <span>My Dashboard</span>
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/profile"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <UserCircle size={18} className="me-2" />
+                <span>My Profile</span>
+              </NavLink>
+
+              <NavLink
+                to="/dashboard/settings"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <Settings size={18} className="me-2" />
+                <span>Settings</span>
+              </NavLink>
+            </div>
+          </>
+        )}
+
+        <hr className="my-4 border-secondary" />
+
+        {/* === Logout Button === */}
+        <button
+          onClick={handleLogout}
+          className="btn w-100 d-flex align-items-center justify-content-center mt-auto logout-btn"
+          onMouseEnter={(e) =>
+            (e.target.style.transform = "translateY(-2px)")
+          }
+          onMouseLeave={(e) => (e.target.style.transform = "translateY(0)")}
+        >
+          <LogOut size={18} className="me-2" />
+          Logout
+        </button>
+      </div>
+
+      {/* Spacer for desktop */}
+      <div className="d-none d-md-block" style={{ width: "260px" }} />
+    </>
   );
 };
 

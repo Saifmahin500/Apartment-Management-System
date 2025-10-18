@@ -1,42 +1,792 @@
-/* #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+  min-height: 100vh;
+  margin: 0;
+  color: #fff;
+}
+
+/* === Sidebar Layout === */
+.sidebar-container {
+  height: 100vh;
+  width: 260px;
+  background: linear-gradient(135deg, #1a3a3a 0%, #0d2b2b 100%);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1000;
+  scrollbar-width: thin;
+}
+
+/* === Hover Effect === */
+.sidebar-link:hover {
+  background-color: #1C8A96 !important;
+  color: white !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* === Sidebar Header === */
+.sidebar-header {
+  background: linear-gradient(135deg, #17A2B8 0%, #20c997 100%);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
   text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+  color: white;
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* === Section Title === */
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #6c757d;
+  letter-spacing: 1px;
+  margin-left: 12px;
+  margin-bottom: 12px;
+  margin-top: 16px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* === Sidebar spacing === */
+.sidebar-section {
+  margin-bottom: 20px;
+}
+
+/* === Mobile Sidebar Animation === */
+@media (max-width: 768px) {
+  .sidebar-container {
+    position: fixed;
+    left: -100%;
+    transition: left 0.3s ease;
   }
-  to {
-    transform: rotate(360deg);
+  .sidebar-container.open {
+    left: 0;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+/* =======================
+   🔹 DASHBOARD HOME STYLE
+   ======================= */
+
+/* Body / Container Background */
+.dashboard-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 60px 0;
+}
+
+/* Header */
+.dashboard-header h1 {
+  color: #212529;
+  font-size: 36px;
+  letter-spacing: -0.5px;
+  font-weight: 700;
+}
+
+.dashboard-header p {
+  font-size: 16px;
+  color: #6c757d;
+  margin-left: 55px;
+}
+
+/* Metric Cards (DashboardCard, MonthlyCard) */
+.dashboard-card,
+.monthly-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.dashboard-card:hover,
+.monthly-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Chart Section */
+.dashboard-chart-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.dashboard-chart-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-chart-header {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 16px 20px;
+  border: none;
+}
+
+/* Recent Lists */
+.dashboard-list {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.dashboard-list:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.dashboard-list-header {
+  font-weight: 600;
+  color: white;
+  font-size: 17px;
+  padding: 16px 20px;
+  border: none;
+}
+
+.dashboard-list-body {
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+/* Empty State */
+.dashboard-empty {
+  text-align: center;
+  padding: 80px 0;
+  color: #6c757d;
+}
+
+.dashboard-empty i {
+  font-size: 40px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .dashboard-header h1 {
+    font-size: 28px;
+  }
+  .dashboard-container {
+    padding: 40px 0;
   }
 }
 
-.card {
-  padding: 2em;
+
+/* =======================
+   🏢 FLAT MANAGEMENT STYLE
+   ======================= */
+
+/* Main Container */
+.flat-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 60px 0;
 }
 
-.read-the-docs {
-  color: #888;
-} */
+/* Header */
+.flat-header h2 {
+  color: #212529;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.flat-header p {
+  color: #6c757d;
+  margin-left: 55px;
+  font-size: 15px;
+}
+
+/* Add New Button */
+.btn-add-flat {
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+}
+
+.btn-add-flat:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(23, 162, 184, 0.4);
+}
+
+/* Table Card */
+.flat-table-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Table Header */
+.flat-table-header {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  padding: 20px 30px;
+}
+
+.flat-table-header h5 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Table */
+.table thead th {
+  color: #6c757d !important;
+  font-weight: 600;
+  font-size: 14px;
+  background-color: #f8f9fa !important;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: #f0f7ff;
+}
+
+/* Index Badge */
+.flat-index-badge {
+  background-color: #e0f7fa;
+  color: #17a2b8;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Status Badge */
+.flat-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.flat-status.available {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.flat-status.occupied {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Image Thumbnails */
+.flat-image {
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #e9ecef;
+}
+
+/* Action Buttons */
+.btn-edit,
+.btn-delete {
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-edit {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.btn-edit:hover {
+  background-color: #1976d2;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #ffebee;
+  color: #dc3545;
+}
+
+.btn-delete:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Empty Table */
+.flat-empty {
+  text-align: center;
+  color: #6c757d;
+  padding: 60px 0;
+}
+
+.flat-empty i {
+  font-size: 40px;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+/* Modal Header */
+.flat-modal-header {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  border-bottom: none;
+}
+
+.flat-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Form Fields */
+.flat-form-label {
+  font-weight: 600;
+  color: #212529;
+  font-size: 15px;
+}
+
+.flat-form-control {
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  padding: 10px 12px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.flat-form-control:focus {
+  border-color: #17a2b8;
+  box-shadow: none;
+}
+
+/* Modal Buttons */
+.btn-save-flat {
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-save-flat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(23, 162, 184, 0.4);
+}
+
+.btn-cancel-flat {
+  background-color: #f0f0f0;
+  color: #6c757d;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cancel-flat:hover {
+  background-color: #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .flat-header h2 {
+    font-size: 26px;
+  }
+  .flat-container {
+    padding: 40px 0;
+  }
+}
+
+
+/* ==========================
+   👥 TENANT MANAGEMENT STYLE
+   ========================== */
+
+   .tenant-container {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 60px 0;
+  }
+  
+  /* Header */
+  .tenant-header h2 {
+    color: #212529;
+    font-size: 32px;
+    font-weight: 700;
+  }
+  
+  .tenant-header p {
+    color: #6c757d;
+    margin-left: 55px;
+    font-size: 15px;
+  }
+  
+  /* Add Button */
+  .btn-add-tenant {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-add-tenant:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(23, 162, 184, 0.4);
+  }
+  
+  /* Table Card */
+  .tenant-table-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  
+  /* Table Header */
+  .tenant-table-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    padding: 20px 30px;
+  }
+  
+  .tenant-table-header h5 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  /* Table */
+  .table thead th {
+    color: #6c757d !important;
+    font-weight: 600;
+    font-size: 14px;
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #e9ecef;
+  }
+  
+  .table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+  }
+  
+  .table tbody tr:hover {
+    background-color: #f0f7ff;
+  }
+  
+  /* Index Badge */
+  .tenant-index-badge {
+    background-color: #e0f7fa;
+    color: #17a2b8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  
+  /* Flat Name Badge */
+  .tenant-flat-badge {
+    background-color: #e8f5e9;
+    color: #20c997;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  
+  /* Action Buttons */
+  .btn-tenant-edit,
+  .btn-tenant-delete {
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 6px 12px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .btn-tenant-edit {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  .btn-tenant-edit:hover {
+    background-color: #1976d2;
+    color: white;
+  }
+  
+  .btn-tenant-delete {
+    background-color: #ffebee;
+    color: #dc3545;
+  }
+  
+  .btn-tenant-delete:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  /* Empty State */
+  .tenant-empty {
+    text-align: center;
+    color: #6c757d;
+    padding: 60px 0;
+  }
+  
+  .tenant-empty i {
+    font-size: 40px;
+    color: #ccc;
+    margin-bottom: 10px;
+  }
+  
+  /* Modal */
+  .tenant-modal-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    border-bottom: none;
+  }
+  
+  .tenant-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .tenant-header h2 {
+      font-size: 26px;
+    }
+    .tenant-container {
+      padding: 40px 0;
+    }
+  }
+
+
+  /* ==========================
+   💰 RENT MANAGEMENT STYLE
+   ========================== */
+
+.rent-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 60px 0;
+}
+
+/* Header */
+.rent-header h2 {
+  color: #212529;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.rent-header p {
+  color: #6c757d;
+  margin-left: 55px;
+  font-size: 15px;
+}
+
+/* Add Button */
+.btn-add-rent {
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+}
+.btn-add-rent:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(23, 162, 184, 0.4);
+}
+
+/* Summary Cards */
+.summary-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.summary-card .card-body {
+  padding: 1.5rem;
+}
+.summary-card .icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.summary-total {
+  color: #17a2b8;
+}
+.summary-due {
+  color: #dc3545;
+}
+.summary-paid {
+  color: #20c997;
+}
+
+/* Table Container */
+.rent-table-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.rent-table-header {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  padding: 20px 30px;
+  font-weight: 600;
+}
+.table thead th {
+  color: #6c757d !important;
+  font-weight: 600;
+  font-size: 14px;
+  background-color: #f8f9fa !important;
+  border-bottom: 2px solid #e9ecef;
+}
+.table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+.table tbody tr:hover {
+  background-color: #f0f7ff;
+}
+
+/* Index Badge */
+.rent-index-badge {
+  background-color: #e0f7fa;
+  color: #17a2b8;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Total Tag */
+.rent-total {
+  font-weight: 700;
+  color: #212529;
+  font-size: 15px;
+  background-color: #f0f0f0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Status Tag */
+.rent-status {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  display: inline-block;
+}
+.rent-status.paid {
+  background-color: #d4edda;
+  color: #155724;
+}
+.rent-status.due {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Buttons */
+.btn-rent-edit,
+.btn-rent-delete,
+.btn-rent-pay {
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 6px 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-rent-edit {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+.btn-rent-edit:hover {
+  background-color: #1976d2;
+  color: white;
+}
+
+.btn-rent-delete {
+  background-color: #ffebee;
+  color: #dc3545;
+}
+.btn-rent-delete:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-rent-pay {
+  background-color: #fff3cd;
+  color: #856404;
+}
+.btn-rent-pay:hover {
+  background-color: #ffc107;
+  color: white;
+}
+
+/* Empty State */
+.rent-empty {
+  text-align: center;
+  padding: 60px 0;
+}
+.rent-empty i {
+  font-size: 40px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+.rent-empty p {
+  color: #6c757d;
+  font-size: 15px;
+}
+
+/* Modal */
+.rent-modal-header {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  border-bottom: none;
+}
+.rent-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+  
+
