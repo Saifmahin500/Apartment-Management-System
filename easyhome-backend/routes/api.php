@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\SmsGatewayController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\ProfileController;
-use App\Http\Controllers\Api\SettingsController;
+use App\Http\Controllers\Api\SettingController;
 use App\Models\Rent;
 
 
@@ -95,8 +95,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword']);
 
     // Settings Routes
-    Route::get('/settings', [SettingsController::class, 'getSettings']);
-    Route::post('/settings/update', [SettingsController::class, 'updateSettings']);
+    Route::get('/settings', [SettingController::class, 'index']);
+    Route::post('/settings/update', [SettingController::class, 'update']);
 
 });
 

@@ -125,6 +125,15 @@ const AppRoutes = () => {
             }
           />
 
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute allowedRoles={["admin", "owner"]}>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+
           {/* 🧑‍💼 Tenant Dashboard */}
           <Route
             path="tenant"

@@ -1,105 +1,182 @@
 import React, { useEffect, useState } from "react";
-import { getSettings, updateSettings } from "../../api/settingsApi";
-import Swal from "sweetalert2";
+import api from "../../services/api";
+import { toast } from "react-toastify";
 
 const SettingsPage = () => {
   const [form, setForm] = useState({
-    language: "en",
-    notification_enabled: true,
-    timezone: "Asia/Dhaka",
+    site_name: "",
+    email: "",
+    phone: "",
+    address: "",
+    currency: "BDT",
+    payment_method: "manual",
+    site_logo: null,
   });
-  const [loading, setLoading] = useState(true);
 
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // 🔹 Load current settings
   useEffect(() => {
-    getSettings()
-      .then((res) => {
-        setForm(res.data.data);
-        setLoading(false);
-      })
-      .catch(() => {
-        Swal.fire("Error", "Failed to load settings.", "error");
-      });
+    const fetchSettings = async () => {
+      try {
+        const res = await api.get("/settings");
+        setForm(res.data);
+        if (res.data.site_logo) {
+          setPreview(res.data.site_logo_url || `/storage/${res.data.site_logo}`);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load settings");
+      }
+    };
+    fetchSettings();
   }, []);
 
+  // 🔹 Handle input changes
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm({
-      ...form,
-      [name]: type === "checkbox" ? checked : value,
-    });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
+  // 🔹 Handle file input
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setForm({ ...form, site_logo: file });
+    setPreview(URL.createObjectURL(file));
+  };
+
+  // 🔹 Submit updated settings
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await updateSettings(form);
-      Swal.fire("Success!", "Settings updated successfully!", "success");
-    } catch (error) {
-      Swal.fire("Error", "Failed to update settings.", "error");
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        if (value !== null) formData.append(key, value);
+      });
+
+      const res = await api.post("/settings/update", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      toast.success("Settings updated successfully!");
+      setForm(res.data.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update settings");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <p className="text-center mt-6">Loading settings...</p>;
-
   return (
-    <div className="max-w-lg mx-auto bg-white p-6 shadow-md rounded-2xl">
-      <h2 className="text-2xl font-semibold mb-5 text-center">
-        ⚙️ User Settings
-      </h2>
+    <div className="container mt-4">
+      <h3 className="mb-4">System Settings ⚙️</h3>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Language Selection */}
-        <div>
-          <label className="block text-gray-700 mb-1 font-medium">
-            Language
-          </label>
-          <select
-            name="language"
-            value={form.language}
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
+        {/* Site Name */}
+        <div className="mb-3">
+          <label className="form-label">Site Name</label>
+          <input
+            type="text"
+            className="form-control"
+            name="site_name"
+            value={form.site_name || ""}
             onChange={handleChange}
-            className="border w-full p-2 rounded"
+          />
+        </div>
+
+        {/* Email */}
+        <div className="mb-3">
+          <label className="form-label">Email</label>
+          <input
+            type="email"
+            className="form-control"
+            name="email"
+            value={form.email || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Phone */}
+        <div className="mb-3">
+          <label className="form-label">Phone</label>
+          <input
+            type="text"
+            className="form-control"
+            name="phone"
+            value={form.phone || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Address */}
+        <div className="mb-3">
+          <label className="form-label">Address</label>
+          <textarea
+            className="form-control"
+            name="address"
+            rows="3"
+            value={form.address || ""}
+            onChange={handleChange}
+          ></textarea>
+        </div>
+
+        {/* Currency */}
+        <div className="mb-3">
+          <label className="form-label">Currency</label>
+          <input
+            type="text"
+            className="form-control"
+            name="currency"
+            value={form.currency || ""}
+            onChange={handleChange}
+          />
+        </div>
+
+        {/* Payment Method */}
+        <div className="mb-3">
+          <label className="form-label">Payment Method</label>
+          <select
+            className="form-select"
+            name="payment_method"
+            value={form.payment_method || ""}
+            onChange={handleChange}
           >
-            <option value="en">English</option>
-            <option value="bn">বাংলা</option>
+            <option value="manual">Manual</option>
+            <option value="online">Online</option>
           </select>
         </div>
 
-        {/* Timezone */}
-        <div>
-          <label className="block text-gray-700 mb-1 font-medium">
-            Timezone
-          </label>
+        {/* Logo Upload */}
+        <div className="mb-3">
+          <label className="form-label">Site Logo</label>
           <input
-            type="text"
-            name="timezone"
-            value={form.timezone}
-            onChange={handleChange}
-            placeholder="e.g. Asia/Dhaka"
-            className="border w-full p-2 rounded"
+            type="file"
+            className="form-control"
+            accept="image/*"
+            onChange={handleFileChange}
           />
-        </div>
-
-        {/* Notification Switch */}
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            name="notification_enabled"
-            checked={form.notification_enabled}
-            onChange={handleChange}
-            id="notif"
-            className="h-5 w-5"
-          />
-          <label htmlFor="notif" className="text-gray-700 font-medium">
-            Enable Notifications
-          </label>
+          {preview && (
+            <div className="mt-3">
+              <img
+                src={preview}
+                alt="Logo Preview"
+                width="120"
+                className="rounded border"
+              />
+            </div>
+          )}
         </div>
 
         {/* Save Button */}
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700"
+          className="btn btn-primary mt-2"
+          disabled={loading}
         >
-          Save Settings
+          {loading ? "Saving..." : "Save Changes"}
         </button>
       </form>
     </div>

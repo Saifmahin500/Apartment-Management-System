@@ -788,5 +788,506 @@ body {
   font-weight: 600;
 }
 
+
+/* ==========================
+   📊 RENT REPORT STYLE
+   ========================== */
+
+   .rent-report-container {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding: 60px 0;
+  }
+  
+  /* Header */
+  .rent-report-header h2 {
+    color: #212529;
+    font-size: 32px;
+    font-weight: 700;
+  }
+  .rent-report-header p {
+    color: #6c757d;
+    margin-left: 55px;
+    font-size: 15px;
+  }
+  
+  /* Filter Card */
+  .rent-filter-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+  }
+  .rent-filter-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #212529;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .rent-filter-title i {
+    color: #17a2b8;
+    margin-right: 8px;
+  }
+  .rent-form-label {
+    font-weight: 600;
+    color: #212529;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .rent-form-select {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 10px 12px;
+    font-size: 14px;
+    transition: all 0.3s;
+  }
+  .rent-form-select:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+  }
+  
+  /* Summary Cards */
+  .report-summary-card {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+  .report-summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+  .report-summary-card .card-body {
+    padding: 1.5rem;
+  }
+  .report-summary-card .icon-box {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Table */
+  .rent-report-table {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  .rent-report-table-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+    padding: 20px 30px;
+    font-weight: 600;
+  }
+  .table thead th {
+    color: #6c757d !important;
+    font-weight: 600;
+    font-size: 14px;
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #e9ecef;
+  }
+  .table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+  }
+  .table tbody tr:hover {
+    background-color: #f0f7ff;
+  }
+  
+  /* Index Badge */
+  .report-index-badge {
+    background-color: #e0f7fa;
+    color: #17a2b8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  
+  /* Total amount */
+  .report-total-tag {
+    font-weight: 700;
+    color: #212529;
+    font-size: 15px;
+    background-color: #f0f0f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: inline-block;
+  }
+  
+  /* Status Badge */
+  .report-status {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-block;
+  }
+  .report-status.paid {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  .report-status.due {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  /* Empty State */
+  .report-empty {
+    text-align: center;
+    color: #6c757d;
+    padding: 60px 0;
+  }
+  .report-empty i {
+    font-size: 40px;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+  
+  /* Footer */
+  .report-footer {
+    text-align: center;
+    color: #6c757d;
+    font-size: 13px;
+  }
+  
+
+  /* ==============================
+   🧾 INVOICE MANAGEMENT STYLES
+   ============================== */
+
+.invoice-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 60px 0;
+}
+
+/* ===== Header ===== */
+.invoice-header h2 {
+  color: #212529;
+  font-size: 32px;
+  font-weight: 700;
+}
+.invoice-header p {
+  color: #6c757d;
+  margin-left: 55px;
+  font-size: 15px;
+}
+.btn-add-invoice {
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  padding: 10px 25px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+.btn-add-invoice:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(23, 162, 184, 0.4);
+}
+
+/* ===== Summary Cards ===== */
+.invoice-summary-card {
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+}
+.invoice-summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+.invoice-summary-card .card-body {
+  padding: 1.5rem;
+}
+.border-left-info {
+  border-left: 6px solid #17a2b8;
+}
+.border-left-success {
+  border-left: 6px solid #20c997;
+}
+.border-left-warning {
+  border-left: 6px solid #ffc107;
+}
+.icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== Table Container ===== */
+.invoice-table {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.invoice-table-header {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  padding: 20px 30px;
+}
+.invoice-table-header h5 {
+  font-size: 18px;
+  font-weight: 700;
+}
+.table thead th {
+  color: #6c757d !important;
+  font-weight: 600;
+  font-size: 14px;
+  background-color: #f8f9fa !important;
+  border-bottom: 2px solid #e9ecef;
+}
+.table tbody tr {
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+}
+.table tbody tr:hover {
+  background-color: #f0f7ff;
+}
+
+/* ===== Table Cell Elements ===== */
+.invoice-index {
+  background-color: #e0f7fa;
+  color: #17a2b8;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.invoice-amount {
+  font-weight: 700;
+  color: #212529;
+  font-size: 15px;
+}
+.invoice-date {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+/* ===== Status Badge ===== */
+.invoice-status {
+  font-weight: 600;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.status-paid {
+  background-color: #d4edda;
+  color: #155724;
+}
+.status-sent {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+/* ===== Action Buttons ===== */
+.btn-invoice-edit,
+.btn-invoice-view,
+.btn-invoice-mail,
+.btn-invoice-delete {
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 11px;
+  padding: 6px 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Edit */
+.btn-invoice-edit {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+.btn-invoice-edit:hover {
+  background-color: #1976d2;
+  color: white;
+}
+
+/* View PDF */
+.btn-invoice-view {
+  background-color: #f0f0f0;
+  color: #495057;
+}
+.btn-invoice-view:hover {
+  background-color: #6f42c1;
+  color: white;
+}
+
+/* Send Email */
+.btn-invoice-mail {
+  background-color: #e3f2fd;
+  color: #0288d1;
+}
+.btn-invoice-mail:hover {
+  background-color: #0288d1;
+  color: white;
+}
+
+/* Delete */
+.btn-invoice-delete {
+  background-color: #ffebee;
+  color: #dc3545;
+}
+.btn-invoice-delete:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* ===== Empty State ===== */
+.invoice-empty {
+  text-align: center;
+  padding: 60px 0;
+}
+.invoice-empty i {
+  font-size: 40px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+.invoice-empty p {
+  color: #6c757d;
+  font-size: 15px;
+}
+
+/* ===== Modals ===== */
+.invoice-modal-header {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  border-bottom: none;
+}
+.invoice-modal-title {
+  font-weight: 700;
+  font-size: 20px;
+}
+.invoice-pdf-modal-header {
+  background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+  color: white;
+  border-bottom: none;
+}
+
+/* ==============================
+   🧾 INVOICE FORM STYLES
+   ============================== */
+
+   .invoice-form label {
+    font-weight: 600;
+    color: #212529;
+    font-size: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .invoice-form select,
+  .invoice-form input,
+  .invoice-form textarea {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 12px 14px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+  
+  .invoice-form select:focus,
+  .invoice-form input:focus,
+  .invoice-form textarea:focus {
+    border-color: #17a2b8;
+    box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+  }
+  
+  .invoice-form small {
+    font-size: 12px;
+    color: #6c757d;
+  }
+  
+  .invoice-form .info-box {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 16px;
+    color: #0c5460;
+    font-size: 13px;
+  }
+  
+  .invoice-form .auto-box {
+    background-color: #e7f3ff;
+    border: 1px solid #b3d9ff;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 12px;
+    color: #004085;
+    font-size: 13px;
+  }
+  
+  .invoice-form .btn-submit {
+    background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 14px;
+    width: 100%;
+    transition: all 0.3s ease;
+  }
+  
+  .invoice-form .btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(23, 162, 184, 0.4);
+  }
+  
+  .invoice-form .btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .invoice-form .disabled-select {
+    background-color: #f8f9fa;
+    opacity: 0.6;
+  }
+  
+  .invoice-form .text-warning {
+    color: #ffc107 !important;
+  }
+  
+  .invoice-form .text-success {
+    color: #20c997 !important;
+  }
+  
+  .invoice-form .text-danger {
+    color: #dc3545 !important;
+  }
+  
+  .invoice-form .text-info {
+    color: #17a2b8 !important;
+  }
+  
+  .invoice-form .text-purple {
+    color: #6f42c1 !important;
+  }
+  
+  .invoice-form .text-orange {
+    color: #fd7e14 !important;
+  }
+  
   
 
