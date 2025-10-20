@@ -22,10 +22,24 @@ class FlatController extends Controller
      * 🔹 Get simple flat list (for dropdowns)
      */
     public function simpleList()
-    {
-        $flats = Flat::select('id', 'name', 'status', 'rent_amount')->get();
-        return response()->json($flats);
+{
+    $flats = \App\Models\Flat::where('status', 'available')
+        ->select('id', 'name', 'flat_number', 'floor', 'size', 'rent_amount', 'image')
+        ->get();
+
+    // Optional fallback if size or floor is null
+    foreach ($flats as $flat) {
+        if (empty($flat->floor)) {
+            $flat->floor = 'N/A';
+        }
+        if (empty($flat->size)) {
+            $flat->size = 'N/A';
+        }
     }
+
+    return response()->json($flats);
+}
+
 
     /**
      * 🔹 Store a new flat
@@ -68,6 +82,8 @@ class FlatController extends Controller
             'flat' => $flat->load('images')
         ], 201);
     }
+
+    
 
     /**
      * 🔹 Update flat

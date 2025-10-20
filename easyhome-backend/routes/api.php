@@ -16,7 +16,11 @@ use App\Http\Controllers\Api\SmsGatewayController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceRequestController;
+
 use App\Models\Rent;
+
 
 
 
@@ -35,11 +39,7 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-/*
-|--------------------------------------------------------------------------
-| 🌐 Public Routes (No Authentication Needed)
-|--------------------------------------------------------------------------
-*/
+// Public Routes 
 Route::get('/flats/simple', [FlatController::class, 'simpleList']); // ✅ For dropdowns
 
 
@@ -47,18 +47,16 @@ Route::get('/rents/latest/{flat_id}', function ($flat_id) {
     return Rent::where('flat_id', $flat_id)->latest()->first();
 });
 
-/*
-|--------------------------------------------------------------------------
-| 🔒 Protected Routes (Require Sanctum Auth)
-|--------------------------------------------------------------------------
-*/
+Route::get('/public/services', [ServiceController::class, 'index']);
+
+// Protected Routes 
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dashboard-summary', [DashboardController::class, 'summary']);
     Route::get('/dashboard-recent', [DashboardController::class, 'recent']);
 
 
-    
+
     // Buildings & Flats
     Route::apiResource('buildings', BuildingController::class);
     Route::apiResource('flats', FlatController::class);
@@ -98,6 +96,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/settings', [SettingController::class, 'index']);
     Route::post('/settings/update', [SettingController::class, 'update']);
 
+
+    //services Routes
+    Route::apiResource('services', ServiceController::class)->except(['index']);
+    Route::apiResource('service-requests', ServiceRequestController::class);
+    Route::put('/service-requests/{id}/status', [ServiceRequestController::class, 'updateStatus']);
 });
 
 Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'downloadPdf']);
