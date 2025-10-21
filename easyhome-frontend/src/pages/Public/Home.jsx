@@ -707,9 +707,12 @@ export default function Home() {
                   <div className="flat-rent">
                     <i className="fas fa-bangladeshi-taka-sign me-2"></i>{flat.rent_amount}/month
                   </div>
-                  <Link to="/flats" className="btn btn-view-flat">
-                    View Details <i className="fas fa-arrow-right ms-2"></i>
-                  </Link>
+                                         <Link
+                                        to={`/flats/${flat.id}`}
+                                        className="btn btn-outline-primary btn-sm"
+                                      >
+                                        View Details →
+                                      </Link>
                 </div>
               </div>
             </div>

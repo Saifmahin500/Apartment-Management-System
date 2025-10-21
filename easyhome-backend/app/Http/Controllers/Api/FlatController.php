@@ -22,23 +22,72 @@ class FlatController extends Controller
      * 🔹 Get simple flat list (for dropdowns)
      */
     public function simpleList()
-{
-    $flats = \App\Models\Flat::where('status', 'available')
-        ->select('id', 'name', 'flat_number', 'floor', 'size', 'rent_amount', 'image')
-        ->get();
+    {
+        $flats = \App\Models\Flat::with('images')
+            ->where('status', 'available')
+            ->select('id', 'name', 'flat_number', 'floor', 'size', 'rent_amount')
+            ->get();
 
-    // Optional fallback if size or floor is null
-    foreach ($flats as $flat) {
-        if (empty($flat->floor)) {
-            $flat->floor = 'N/A';
+        foreach ($flats as $flat) {
+            $flat->floor = $flat->floor ?? 'N/A';
+            $flat->size = $flat->size ?? 'N/A';
+
+            // 🖼️ একাধিক ছবি থাকলে প্রথমটার URL বানাও
+            if ($flat->images->isNotEmpty()) {
+                $firstImage = $flat->images->first()->image;
+                $flat->image = asset('storage/' . $firstImage);
+            } else {
+                $flat->image = asset('images/default-flat.jpg');
+            }
+
+            unset($flat->images);
         }
-        if (empty($flat->size)) {
-            $flat->size = 'N/A';
-        }
+
+        return response()->json($flats);
     }
 
-    return response()->json($flats);
-}
+    public function show($id)
+    {
+        $flat = \App\Models\Flat::with(['images', 'building'])
+            ->where('id', $id)
+            ->first();
+
+        if (!$flat) {
+            return response()->json(['message' => 'Flat not found'], 404);
+        }
+
+        // image URL বানাও
+        $flat->images->transform(function ($img) {
+            $img->url = asset('storage/' . $img->image);
+            return $img;
+        });
+
+        return response()->json($flat);
+    }
+
+    public function showPublic($id)
+    {
+        $flat = Flat::with('images')
+            ->select('id', 'name', 'flat_number', 'floor', 'size', 'rent_amount', 'status',  'building_id')
+            ->find($id);
+
+        if (!$flat) {
+            return response()->json(['message' => 'Flat not found'], 404);
+        }
+
+        // Optional: add building info
+        // $flat->building = Building::select('id', 'name', 'address')->find($flat->building_id);
+
+        // Optional: add full image URLs
+        foreach ($flat->images as $img) {
+            $img->url = asset('storage/' . $img->image);
+        }
+
+        return response()->json($flat);
+    }
+
+
+
 
 
     /**
@@ -83,7 +132,7 @@ class FlatController extends Controller
         ], 201);
     }
 
-    
+
 
     /**
      * 🔹 Update flat

@@ -22,14 +22,15 @@ import ExpenseList from "../pages/expenses/ExpenseList";
 import InvoiceList from "../pages/invoices/InvoiceList";
 import SettingsPage from "../pages/settings/SettingsPage";
 
-//  Public Website Pages
+// 🌐 Public Website Pages
 import Home from "../pages/public/Home";
 import About from "../pages/Public/About";
-import Contact from "../pages/public/Contact";
-import Flats from "../pages/public/Flats";
+import Contact from "../pages/Public/Contact";
+import Flats from "../pages/Public/Flats";
+import FlatDetails from "../pages/flats/FlatDetails"; 
 import Services from "../pages/Public/Services";
 
-//  Service Request System
+// 🧰 Service Request System
 import TenantServices from "../pages/tenants/TenantServices";
 import MyRequests from "../pages/tenants/MyRequests";
 import AdminServices from "../pages/admin/AdminServices";
@@ -44,6 +45,7 @@ const AppRoutes = () => {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/flats" element={<Flats />} />
+        <Route path="/flats/:id" element={<FlatDetails />} /> 
         <Route path="/services" element={<Services />} />
 
         {/* 🔐 Authentication */}
@@ -194,7 +196,7 @@ const AppRoutes = () => {
         <Route
           path="*"
           element={
-            <div className="text-center mt-5 text-red-600">
+            <div className="text-center mt-5 text-danger">
               <h3>404 – Page Not Found</h3>
               <p>The page you are looking for does not exist.</p>
             </div>

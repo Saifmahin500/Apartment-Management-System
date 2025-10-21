@@ -40,7 +40,9 @@ Route::prefix('auth')->group(function () {
 });
 
 // Public Routes 
-Route::get('/flats/simple', [FlatController::class, 'simpleList']); // ✅ For dropdowns
+Route::get('/flats/simple', [FlatController::class, 'simpleList']); 
+Route::get('/public/flats/{id}', [FlatController::class, 'showPublic']);
+
 
 
 Route::get('/rents/latest/{flat_id}', function ($flat_id) {
@@ -60,6 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Buildings & Flats
     Route::apiResource('buildings', BuildingController::class);
     Route::apiResource('flats', FlatController::class);
+    
 
     // Tenants
     Route::apiResource('tenants', TenantController::class);

@@ -13,7 +13,6 @@ class FlatImage extends Model
 
     public function flat()
     {
-        return $this->belongsTo(Flat::class);
+        return $this->belongsTo(Flat::class, 'flat_id');
     }
 }
-
