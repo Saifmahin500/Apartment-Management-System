@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Rent;
+use App\Models\RentRequest;
 
 class RentController extends Controller
 {
@@ -79,6 +80,43 @@ class RentController extends Controller
             'rent' => $rent,
         ], 200);
     }
+
+    public function requestRent(Request $request)
+{
+    $user = auth()->user();
+
+    // ✅ Tenant validation
+    if (!$user || $user->role !== 'tenant') {
+        return response()->json(['message' => 'Only tenants can send rent requests.'], 403);
+    }
+
+    // ✅ Validate flat ID
+    $request->validate([
+        'flat_id' => 'required|exists:flats,id',
+    ]);
+
+    // ✅ Prevent duplicate pending request
+    $exists = RentRequest::where('tenant_id', $user->id)
+        ->where('flat_id', $request->flat_id)
+        ->where('status', 'pending')
+        ->exists();
+
+    if ($exists) {
+        return response()->json(['message' => 'You already have a pending request for this flat.'], 400);
+    }
+
+    // ✅ Create new rent request
+    $rentRequest = RentRequest::create([
+        'tenant_id' => $user->id,
+        'flat_id' => $request->flat_id,
+        'status' => 'pending',
+    ]);
+
+    return response()->json([
+        'message' => 'Rent request submitted successfully!',
+        'request' => $rentRequest,
+    ]);
+}
 
 
     /**

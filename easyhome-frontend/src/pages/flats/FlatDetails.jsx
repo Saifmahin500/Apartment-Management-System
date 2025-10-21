@@ -26,28 +26,18 @@ export default function FlatDetails() {
   }, [id]);
 
   const handleRentRequest = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.warn("Please login as tenant to send request!");
+    if (!localStorage.getItem("token")) {
       navigate("/login");
       return;
     }
-
     try {
-      setRequesting(true);
-      await axiosClient.post(
-        "/service-requests",
-        { flat_id: id, service_id: 1, request_date: new Date().toISOString().split("T")[0] },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success("Rent request sent successfully!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to send rent request!");
-    } finally {
-      setRequesting(false);
+      await axiosClient.post("/tenant/rent-request", { flat_id: flat.id });
+      toast.success("Rent request sent!");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Request failed");
     }
   };
+  
 
   if (loading) {
     return (
