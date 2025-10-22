@@ -21,13 +21,9 @@ use App\Http\Controllers\ServiceRequestController;
 
 use App\Models\Rent;
 
-
-
-
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -43,8 +39,6 @@ Route::prefix('auth')->group(function () {
 Route::get('/flats/simple', [FlatController::class, 'simpleList']);
 Route::get('/public/flats/{id}', [FlatController::class, 'showPublic']);
 
-
-
 Route::get('/rents/latest/{flat_id}', function ($flat_id) {
     return Rent::where('flat_id', $flat_id)->latest()->first();
 });
@@ -57,18 +51,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard-summary', [DashboardController::class, 'summary']);
     Route::get('/dashboard-recent', [DashboardController::class, 'recent']);
 
-
-
     // Buildings & Flats
     Route::apiResource('buildings', BuildingController::class);
     Route::apiResource('flats', FlatController::class);
-
 
     // Tenants
     Route::apiResource('tenants', TenantController::class);
     Route::get('/tenants/by-flat/{flat_id}', [TenantController::class, 'byFlat']);
     Route::post('/tenant/rent-request', [RentController::class, 'requestRent']);
 
+    // ✅ Admin Rent Requests Routes (newly added)
+    Route::get('/admin/rent-requests', [RentController::class, 'index']);
+    Route::put('/admin/rent-requests/{id}/status', [RentController::class, 'updateStatus']);
+    // ✅ end
 
     // Rent & Payments
     Route::apiResource('rents', RentController::class);
@@ -100,8 +95,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/settings', [SettingController::class, 'index']);
     Route::post('/settings/update', [SettingController::class, 'update']);
 
-
-    //services Routes
+    // Services Routes
     Route::apiResource('services', ServiceController::class)->except(['index']);
     Route::apiResource('service-requests', ServiceRequestController::class);
     Route::put('/service-requests/{id}/status', [ServiceRequestController::class, 'updateStatus']);

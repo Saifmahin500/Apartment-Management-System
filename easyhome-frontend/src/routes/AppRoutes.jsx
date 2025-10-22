@@ -35,6 +35,7 @@ import TenantServices from "../pages/tenants/TenantServices";
 import MyRequests from "../pages/tenants/MyRequests";
 import AdminServices from "../pages/admin/AdminServices";
 import AdminServiceRequests from "../pages/admin/AdminServiceRequests";
+import AdminRentRequests from "../pages/Admin/AdminRentRequests";
 
 const AppRoutes = () => {
   return (
@@ -79,7 +80,7 @@ const AppRoutes = () => {
           <Route
             path="settings"
             element={
-              <ProtectedRoute allowedRoles={["admin", "owner", "tenant"]}>
+              <ProtectedRoute allowedRoles={["admin", "owner"]}>
                 <SettingsPage />
               </ProtectedRoute>
             }
@@ -111,6 +112,14 @@ const AppRoutes = () => {
             element={
               <ProtectedRoute allowedRoles={["admin", "owner"]}>
                 <RentList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/rent-requests"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "owner"]}>
+                <AdminRentRequests />
               </ProtectedRoute>
             }
           />

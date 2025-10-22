@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
-import { toast } from "react-toastify";
-import "bootstrap/dist/css/bootstrap.min.css";
+import PublicLayout from "../../layout/PublicLayout";
 
 export default function FlatDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [flat, setFlat] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [requesting, setRequesting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchFlat = async () => {
@@ -22,116 +22,111 @@ export default function FlatDetails() {
         setLoading(false);
       }
     };
+
+    // ✅ Try to read logged-in user info from localStorage
+    const role = localStorage.getItem("role");
+    const token = localStorage.getItem("token");
+    if (role === "tenant" && token) {
+      setUser({ role, token });
+    }
+
+
     fetchFlat();
   }, [id]);
 
+  // 🧾 Rent Request Function
   const handleRentRequest = async () => {
-    if (!localStorage.getItem("token")) {
+    if (!user) {
+      alert("Please login as tenant to send rent request.");
       navigate("/login");
       return;
     }
+
     try {
-      await axiosClient.post("/tenant/rent-request", { flat_id: flat.id });
-      toast.success("Rent request sent!");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Request failed");
+      const token = localStorage.getItem("token");
+      const res = await axiosClient.post(
+        "/tenant/rent-request",
+        { flat_id: flat.id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setMessage(res.data.message || "Request sent successfully!");
+    } catch (error) {
+      console.error("Rent request error:", error);
+      setMessage(
+        error.response?.data?.message || "Failed to send rent request."
+      );
     }
   };
-  
 
-  if (loading) {
+  if (loading)
     return (
       <div className="text-center mt-5">
-        <div className="spinner-border text-primary"></div>
-        <p className="mt-2">Loading Flat Details...</p>
+        <div className="spinner-border text-primary" role="status"></div>
+        <p>Loading flat details...</p>
       </div>
     );
-  }
 
-  if (!flat) {
+  if (!flat)
     return (
-      <div className="text-center mt-5 text-danger">
-        <h4>Flat not found!</h4>
-      </div>
+      <PublicLayout>
+        <h4 className="text-center text-danger mt-5">Flat not found!</h4>
+      </PublicLayout>
     );
-  }
 
   return (
-    <div className="container my-5">
-      {/* 🖼️ Image Gallery */}
-      <div id="flatCarousel" className="carousel slide mb-4" data-bs-ride="carousel">
-        <div className="carousel-inner rounded shadow-sm">
-          {flat.images && flat.images.length > 0 ? (
-            flat.images.map((img, index) => (
-              <div
-                key={index}
-                className={`carousel-item ${index === 0 ? "active" : ""}`}
+    <PublicLayout>
+      <div className="container py-5 my-5">
+        <div className="row">
+          {/* 🏠 Flat Image */}
+          <div className="col-md-6">
+            <img
+              src={flat.image || "/images/flat.jpg"}
+              alt={flat.name}
+              className="img-fluid rounded shadow-sm"
+            />
+          </div>
+
+          {/* 🧾 Flat Details */}
+          <div className="col-md-6">
+            <h2 className="fw-bold mb-3">{flat.name}</h2>
+            <p className="text-muted mb-1">🏢 Floor: {flat.floor || "N/A"}</p>
+            <p className="text-muted mb-1">📐 Size: {flat.size || "N/A"} sq.ft</p>
+            <p className="text-primary fw-semibold fs-5 mb-3">
+              ৳ {flat.rent_amount}/month
+            </p>
+
+            <p className="text-muted mb-4">
+              <strong>Status:</strong>{" "}
+              <span
+                className={
+                  flat.status === "available" ? "text-success" : "text-danger"
+                }
               >
-                <img
-                  src={img.url}
-                  className="d-block w-100"
-                  alt={`Flat Image ${index + 1}`}
-                  style={{ height: "400px", objectFit: "cover" }}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="carousel-item active">
-              <img
-                src="/images/default-flat.jpg"
-                className="d-block w-100"
-                alt="Default"
-                style={{ height: "400px", objectFit: "cover" }}
-              />
-            </div>
-          )}
-        </div>
-        <button
-          className="carousel-control-prev"
-          type="button"
-          data-bs-target="#flatCarousel"
-          data-bs-slide="prev"
-        >
-          <span className="carousel-control-prev-icon"></span>
-        </button>
-        <button
-          className="carousel-control-next"
-          type="button"
-          data-bs-target="#flatCarousel"
-          data-bs-slide="next"
-        >
-          <span className="carousel-control-next-icon"></span>
-        </button>
-      </div>
+                {flat.status}
+              </span>
+            </p>
 
-      {/* 🧾 Flat Info */}
-      <div className="card shadow-sm border-0 p-4">
-        <h3 className="fw-bold mb-3">{flat.name}</h3>
-        <p><strong>Floor:</strong> {flat.floor}</p>
-        <p><strong>Size:</strong> {flat.size} sqft</p>
-        <p><strong>Rent Amount:</strong> ৳{flat.rent_amount}/month</p>
-        <p><strong>Status:</strong> {flat.status}</p>
+            {/* 🟢 Rent Request Button */}
+            {flat.status === "available" && (
+              <button
+                className="btn btn-primary px-4 py-2 fw-semibold"
+                onClick={handleRentRequest}
+              >
+                📝 Request for Rent
+              </button>
+            )}
 
-        {flat.building && (
-          <p><strong>Building:</strong> {flat.building.name}</p>
-        )}
-
-        <hr />
-        <p className="text-muted">
-          Live comfortably with all essential facilities, 24/7 support, and
-          secure living experience.
-        </p>
-
-        <div className="text-center mt-4">
-          <button
-            onClick={handleRentRequest}
-            className="btn btn-primary px-4 py-2"
-            disabled={requesting}
-          >
-            {requesting ? "Sending Request..." : "🏠 Request for Rent"}
-          </button>
+            {message && (
+              <div className="alert alert-info mt-3 text-center">{message}</div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </PublicLayout>
   );
 }

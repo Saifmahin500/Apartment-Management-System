@@ -68,20 +68,22 @@ const Sidebar = () => {
         </div>
 
         {/* === Common Links === */}
-        <div className="sidebar-section">
-          <NavLink
-            to="/dashboard"
-            className={linkClass}
-            onClick={() => setIsOpen(false)}
-          >
-            <LayoutDashboard size={18} className="me-2" />
-            <span>Dashboard</span>
-          </NavLink>
-        </div>
+        
 
         {/* === Role-based Menus === */}
         {(role === "admin" || role === "owner") && (
           <>
+
+          <div className="sidebar-section">
+                    <NavLink
+                      to="/dashboard"
+                      className={linkClass}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <LayoutDashboard size={18} className="me-2" />
+                      <span>Dashboard</span>
+                    </NavLink>
+                  </div>
             {/* Properties */}
             <div className="sidebar-section-title">📦 Properties</div>
             <div className="sidebar-section">
@@ -142,6 +144,15 @@ const Sidebar = () => {
                 <FileText size={18} className="me-2" />
                 <span>Invoices</span>
               </NavLink>
+
+              <NavLink
+                to="/dashboard/admin/rent-requests"
+                className={linkClass}
+                onClick={() => setIsOpen(false)}
+              >
+                <BarChart size={18} className="me-2" />
+                <span>Rent Requests</span>
+              </NavLink>
             </div>
 
             {/* Notifications */}
@@ -201,14 +212,14 @@ const Sidebar = () => {
                 <span>My Profile</span>
               </NavLink>
 
-              <NavLink
+              {/* <NavLink
                 to="/dashboard/settings"
                 className={linkClass}
                 onClick={() => setIsOpen(false)}
               >
                 <Settings size={18} className="me-2" />
                 <span>Settings</span>
-              </NavLink>
+              </NavLink> */}
             </div>
           </>
         )}

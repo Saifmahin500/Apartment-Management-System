@@ -10,13 +10,21 @@ use App\Models\RentRequest;
 class RentController extends Controller
 {
     /**
-     * 🔹 Get all rents with related flat info
+     * 🔹 Get all rent requests for admin dashboard
      */
     public function index()
     {
-        $rents = Rent::with('flat')->orderBy('year', 'desc')->orderBy('month', 'desc')->get();
-        return response()->json($rents);
+
+        $requests = RentRequest::with([
+            'tenant:id,name,email,phone',
+            'flat:id,name,floor,size,status'
+        ])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json($requests);
     }
+
 
     /**
      * 🔹 Store a new rent record
@@ -48,11 +56,13 @@ class RentController extends Controller
         ], 201);
     }
 
+    /**
+     * 🔹 Handle tenant rent payment
+     */
     public function pay(Request $request, $id)
     {
         $rent = Rent::findOrFail($id);
 
-        // 🧩 Validate inputs
         $validated = $request->validate([
             'amount_paid' => 'required|numeric|min:1',
             'payment_method' => 'required|string',
@@ -63,7 +73,6 @@ class RentController extends Controller
             'account_number' => 'nullable|string',
         ]);
 
-        // 🧠 Save payment info to rents table
         $rent->update([
             'amount_paid'     => $validated['amount_paid'],
             'payment_method'  => $validated['payment_method'],
@@ -81,43 +90,66 @@ class RentController extends Controller
         ], 200);
     }
 
+    /**
+     * 🔹 Tenant rent request
+     */
     public function requestRent(Request $request)
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    // ✅ Tenant validation
-    if (!$user || $user->role !== 'tenant') {
-        return response()->json(['message' => 'Only tenants can send rent requests.'], 403);
+        if (!$user || $user->role !== 'tenant') {
+            return response()->json(['message' => 'Only tenants can send rent requests.'], 403);
+        }
+
+        $request->validate([
+            'flat_id' => 'required|exists:flats,id',
+        ]);
+
+        $exists = RentRequest::where('tenant_id', $user->id)
+            ->where('flat_id', $request->flat_id)
+            ->where('status', 'pending')
+            ->exists();
+
+        if ($exists) {
+            return response()->json(['message' => 'You already have a pending request for this flat.'], 400);
+        }
+
+        $rentRequest = RentRequest::create([
+            'tenant_id' => $user->id,
+            'flat_id' => $request->flat_id,
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'message' => 'Rent request submitted successfully!',
+            'request' => $rentRequest,
+        ]);
     }
 
-    // ✅ Validate flat ID
-    $request->validate([
-        'flat_id' => 'required|exists:flats,id',
-    ]);
+    /**
+     * 🔹 Approve / Reject rent request (for Admin)
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'charge' => 'nullable|numeric|min:0'
+        ]);
 
-    // ✅ Prevent duplicate pending request
-    $exists = RentRequest::where('tenant_id', $user->id)
-        ->where('flat_id', $request->flat_id)
-        ->where('status', 'pending')
-        ->exists();
+        $rentRequest = RentRequest::findOrFail($id);
+        $rentRequest->status = $request->status;
 
-    if ($exists) {
-        return response()->json(['message' => 'You already have a pending request for this flat.'], 400);
+        if ($request->status === 'approved') {
+            $rentRequest->charge = $request->charge;
+        }
+
+        $rentRequest->save();
+
+        return response()->json([
+            'message' => "Rent request {$request->status} successfully!",
+            'request' => $rentRequest
+        ]);
     }
-
-    // ✅ Create new rent request
-    $rentRequest = RentRequest::create([
-        'tenant_id' => $user->id,
-        'flat_id' => $request->flat_id,
-        'status' => 'pending',
-    ]);
-
-    return response()->json([
-        'message' => 'Rent request submitted successfully!',
-        'request' => $rentRequest,
-    ]);
-}
-
 
     /**
      * 🔹 Update rent record
