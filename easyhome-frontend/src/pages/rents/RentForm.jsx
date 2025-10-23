@@ -55,7 +55,6 @@ const RentForm = ({ rent, onSuccess }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // ✅ যদি flat select করা হয় → সেই flat এর rent_amount আনো
     if (name === "flat_id") {
       const selectedFlat = flats.find((flat) => flat.id == value);
       setForm({
@@ -72,12 +71,13 @@ const RentForm = ({ rent, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let res;
       if (rent) {
-        await api.put(`/rents/${rent.id}`, form);
+        res = await api.put(`/rents/${rent.id}`, form);
       } else {
-        await api.post("/rents", form);
+        res = await api.post("/rents", form);
       }
-      onSuccess();
+      onSuccess(res.data); // ✅ updated rent send to parent
     } catch (error) {
       console.error("Error saving rent:", error);
     }
@@ -88,7 +88,12 @@ const RentForm = ({ rent, onSuccess }) => {
       {/* 🏢 Flat */}
       <Form.Group className="mb-3">
         <Form.Label>Flat</Form.Label>
-        <Form.Select name="flat_id" value={form.flat_id} onChange={handleChange} required>
+        <Form.Select
+          name="flat_id"
+          value={form.flat_id}
+          onChange={handleChange}
+          required
+        >
           <option value="">Select Flat</option>
           {flats.map((f) => (
             <option key={f.id} value={f.id}>
@@ -101,20 +106,31 @@ const RentForm = ({ rent, onSuccess }) => {
       {/* 🗓 Month */}
       <Form.Group className="mb-3">
         <Form.Label>Month</Form.Label>
-        <Form.Select name="month" value={form.month} onChange={handleChange} required>
+        <Form.Select
+          name="month"
+          value={form.month}
+          onChange={handleChange}
+          required
+        >
           <option value="">Select Month</option>
-          <option value="January">January</option>
-          <option value="February">February</option>
-          <option value="March">March</option>
-          <option value="April">April</option>
-          <option value="May">May</option>
-          <option value="June">June</option>
-          <option value="July">July</option>
-          <option value="August">August</option>
-          <option value="September">September</option>
-          <option value="October">October</option>
-          <option value="November">November</option>
-          <option value="December">December</option>
+          {[
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ].map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
         </Form.Select>
       </Form.Group>
 
@@ -173,7 +189,11 @@ const RentForm = ({ rent, onSuccess }) => {
       {/* 📍 Status */}
       <Form.Group className="mb-3">
         <Form.Label>Status</Form.Label>
-        <Form.Select name="status" value={form.status} onChange={handleChange}>
+        <Form.Select
+          name="status"
+          value={form.status}
+          onChange={handleChange}
+        >
           <option value="Due">Due</option>
           <option value="Paid">Paid</option>
         </Form.Select>

@@ -35,7 +35,7 @@ import TenantServices from "../pages/tenants/TenantServices";
 import MyRequests from "../pages/tenants/MyRequests";
 import AdminServices from "../pages/admin/AdminServices";
 import AdminServiceRequests from "../pages/admin/AdminServiceRequests";
-import AdminRentRequests from "../pages/Admin/AdminRentRequests";
+import AdminRentRequests from "../pages/admin/AdminRentRequests";
 
 const AppRoutes = () => {
   return (

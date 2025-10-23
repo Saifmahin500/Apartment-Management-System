@@ -11,6 +11,9 @@ export default function FlatDetails() {
   const [message, setMessage] = useState("");
   const [user, setUser] = useState(null);
 
+  const defaultImage =
+    "https://images.unsplash.com/photo-1631679706909-1844bbd07221?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGl2aW5nJTIwcm9vbXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=600";
+
   useEffect(() => {
     const fetchFlat = async () => {
       try {
@@ -85,7 +88,7 @@ export default function FlatDetails() {
           {/* 🏠 Flat Image */}
           <div className="col-md-6">
             <img
-              src={flat.image || "/images/flat.jpg"}
+              src={flat.image && flat.image.trim() !== "" ? flat.image : defaultImage}
               alt={flat.name}
               className="img-fluid rounded shadow-sm"
             />
@@ -94,8 +97,8 @@ export default function FlatDetails() {
           {/* 🧾 Flat Details */}
           <div className="col-md-6">
             <h2 className="fw-bold mb-3">{flat.name}</h2>
-            <p className="text-muted mb-1">🏢 Floor: {flat.floor || "N/A"}</p>
-            <p className="text-muted mb-1">📐 Size: {flat.size || "N/A"} sq.ft</p>
+            <p className="text-muted mb-2">🏢 Floor: {flat.floor || "N/A"}</p>
+            <p className="text-muted mb-2">📐 Size: {flat.size || "N/A"} sq.ft</p>
             <p className="text-primary fw-semibold fs-5 mb-3">
               ৳ {flat.rent_amount}/month
             </p>
@@ -110,6 +113,7 @@ export default function FlatDetails() {
                 {flat.status}
               </span>
             </p>
+            <p className="text-muted mb-4"><strong>Description:</strong> This apartment offers a modern design with comfortable living spaces. Featuring spacious rooms, plenty of natural light, and premium finishes, it’s perfect for families seeking a peaceful and well-connected neighborhood.</p>
 
             {/* 🟢 Rent Request Button */}
             {flat.status === "available" && (

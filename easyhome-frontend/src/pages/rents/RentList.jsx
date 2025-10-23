@@ -4,7 +4,7 @@ import api from "../../services/api";
 import RentForm from "./RentForm";
 import RentPaymentModal from "./RentPaymentModal";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import "../../app.css"; // ✅ Import global styles
+import "../../app.css";
 
 const RentList = () => {
   const [rents, setRents] = useState([]);
@@ -229,9 +229,15 @@ const RentList = () => {
         <Modal.Body className="p-4">
           <RentForm
             rent={selectedRent}
-            onSuccess={() => {
+            onSuccess={(updatedRent) => {
               handleCloseModal();
-              fetchRents();
+              if (selectedRent) {
+                setRents((prev) =>
+                  prev.map((r) => (r.id === updatedRent.id ? updatedRent : r))
+                );
+              } else {
+                setRents((prev) => [...prev, updatedRent]);
+              }
             }}
           />
         </Modal.Body>

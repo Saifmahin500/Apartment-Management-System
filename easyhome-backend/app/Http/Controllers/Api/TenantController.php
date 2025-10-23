@@ -96,4 +96,35 @@ class TenantController extends Controller
             );
         }
 
+        public function dashboard()
+{
+    $user = auth()->user();
+
+    if ($user->role !== 'tenant') {
+        return response()->json(['message' => 'Access denied.'], 403);
+    }
+
+    // ✅ Current Flat
+    $currentFlat = \App\Models\Flat::where('tenant_id', $user->id)->first();
+
+    // ✅ Latest Rent
+    $latestRent = \App\Models\Rent::where('tenant_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    // ✅ Recent Service Requests
+    $recentRequests = \App\Models\ServiceRequest::with('service')
+        ->where('tenant_id', $user->id)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
+
+    return response()->json([
+        'tenant' => $user,
+        'flat' => $currentFlat,
+        'latest_rent' => $latestRent,
+        'recent_requests' => $recentRequests,
+    ]);
+}
+
 }

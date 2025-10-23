@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Tenants
     Route::apiResource('tenants', TenantController::class);
+    Route::get('/tenant/dashboard', [TenantController::class, 'dashboard']);
     Route::get('/tenants/by-flat/{flat_id}', [TenantController::class, 'byFlat']);
     Route::post('/tenant/rent-request', [RentController::class, 'requestRent']);
 
