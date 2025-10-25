@@ -129,33 +129,50 @@ class TenantController extends Controller
     }
 
     public function dashboard()
-    {
-        $user = auth()->user();
+{
+    $user = auth()->user();
 
-        if ($user->role !== 'tenant') {
-            return response()->json(['message' => 'Access denied.'], 403);
-        }
+    if ($user->role !== 'tenant') {
+        return response()->json(['message' => 'Access denied.'], 403);
+    }
 
-        // ✅ Current Flat
-        $currentFlat = \App\Models\Flat::where('tenant_id', $user->id)->first();
+    // ✅ Find tenant record linked to this user
+    $tenant = \App\Models\Tenant::where('email', $user->email)->first();
 
-        // ✅ Latest Rent
-        $latestRent = \App\Models\Rent::where('tenant_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->first();
-
-        // ✅ Recent Service Requests
-        $recentRequests = \App\Models\ServiceRequest::with('service')
-            ->where('tenant_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
-
+    if (!$tenant) {
         return response()->json([
             'tenant' => $user,
-            'flat' => $currentFlat,
-            'latest_rent' => $latestRent,
-            'recent_requests' => $recentRequests,
+            'flat' => null,
+            'latest_rent' => null,
+            'recent_requests' => [],
         ]);
     }
+
+    // ✅ Current Flat (fixed)
+    $currentFlat = \App\Models\Flat::where('id', $tenant->flat_id)
+        ->select('id', 'name', 'flat_number', 'floor', 'rent_amount', 'size', 'status')
+        ->first();
+
+    // ✅ Latest Rent
+    $latestRent = \App\Models\Rent::where('tenant_id', $tenant->id)
+        ->with('flat:id,name,flat_number')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    // ✅ Recent Service Requests
+    $recentRequests = \App\Models\ServiceRequest::with(['service:id,name'])
+        ->where('tenant_id', $tenant->id)
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get(['id', 'service_id', 'status', 'request_date', 'charge']);
+
+    // ✅ Final Response
+    return response()->json([
+        'tenant' => $user,
+        'flat' => $currentFlat,
+        'latest_rent' => $latestRent,
+        'recent_requests' => $recentRequests,
+    ]);
+}
+
 }

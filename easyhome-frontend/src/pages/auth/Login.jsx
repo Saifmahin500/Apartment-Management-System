@@ -29,7 +29,14 @@ const Login = () => {
         text: "Welcome back, " + res.data.user.name + "!",
         icon: "success",
         confirmButtonColor: "#0d6efd",
-      }).then(() => navigate("/dashboard"));
+      }).then(() => {
+        if (res.data.role === "tenant") {
+          navigate("/dashboard/tenant");
+        } else {
+          navigate("/dashboard");
+        }
+      });
+      
     } catch (err) {
       const message = err.response?.data?.message || "Invalid credentials!";
       setError(message);

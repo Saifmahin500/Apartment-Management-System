@@ -28,11 +28,11 @@ class Flat extends Model
 
     public function tenant()
     {
-        return $this->hasOne(Tenant::class);
+        return $this->belongsTo(Tenant::class, 'tenant_id');
     }
+
     public function images()
     {
         return $this->hasMany(FlatImage::class, 'flat_id', 'id');
     }
-
 }

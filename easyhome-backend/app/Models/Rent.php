@@ -28,10 +28,16 @@ class Rent extends Model
         'payment_date',
     ];
 
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
+
     public function flat()
     {
         return $this->belongsTo(Flat::class, 'flat_id');
     }
+
 
     public function payments()
     {
