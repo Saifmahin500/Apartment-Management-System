@@ -175,4 +175,36 @@ class TenantController extends Controller
     ]);
 }
 
+public function payRent(Request $request)
+    {
+        $request->validate([
+            'month' => 'required',
+            'year' => 'required',
+        ]);
+
+        $tenant = Auth::user()->tenant;
+        if (!$tenant) {
+            return response()->json(['message' => 'Tenant not found'], 404);
+        }
+
+        $rent = Rent::where('tenant_id', $tenant->id)
+            ->where('month', $request->month)
+            ->where('year', $request->year)
+            ->first();
+
+        if (!$rent) {
+            return response()->json(['message' => 'Rent record not found'], 404);
+        }
+
+        // ভাড়া Paid করে দিচ্ছি
+        $rent->status = 'Paid';
+        $rent->payment_date = now();
+        $rent->save();
+
+        return response()->json([
+            'message' => 'Rent payment successful!',
+            'rent' => $rent
+        ], 200);
+    }
+
 }

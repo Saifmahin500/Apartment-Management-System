@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\SmsGatewayController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\TenantDashboardController;
+use App\Http\Controllers\Api\TenantRentController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceRequestController;
 
@@ -60,6 +62,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tenant/dashboard', [TenantController::class, 'dashboard']);
     Route::get('/tenants/by-flat/{flat_id}', [TenantController::class, 'byFlat']);
     Route::post('/tenant/rent-request', [RentController::class, 'requestRent']);
+    Route::post('/tenant/pay-rent', [TenantRentController::class, 'payRent']);
+    Route::get('/tenant/rent-summary', [TenantDashboardController::class, 'rentSummary']);
+
 
     // ✅ Admin Rent Requests Routes (newly added)
     Route::get('/admin/rent-requests', [RentController::class, 'index']);

@@ -4,8 +4,39 @@ import DashboardLayout from "../../layout/DashboardLayout";
 
 export default function TenantDashboard() {
   const [data, setData] = useState(null);
+  const [summary, setSummary] = useState({
+    total: 0,
+    paid: 0,
+    due: 0,
+    last_month: "N/A",
+  });
   const [loading, setLoading] = useState(true);
 
+  const handlePayRent = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axiosClient.post(
+        "/tenant/pay-rent",
+        {
+          month: latest_rent.month,
+          year: latest_rent.year,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+  
+      alert("✅ Rent Paid Successfully!");
+      // Data reload করে fresh status দেখানো
+      window.location.reload();
+    } catch (error) {
+      console.error("❌ Rent payment failed:", error);
+      alert("❌ Rent payment failed! Please try again.");
+    }
+  };
+  
+
+  // ✅ Fetch tenant dashboard main data
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
@@ -21,26 +52,41 @@ export default function TenantDashboard() {
         setLoading(false);
       }
     };
+
     fetchDashboard();
+  }, []);
+
+  // ✅ Fetch rent summary data
+  useEffect(() => {
+    const fetchSummary = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axiosClient.get("/tenant/rent-summary", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("✅ Rent Summary response:", res.data);
+        setSummary(res.data);
+      } catch (error) {
+        console.error("❌ Failed to load rent summary:", error);
+      }
+    };
+
+    fetchSummary();
   }, []);
 
   if (loading)
     return (
-      <DashboardLayout>
-        <div className="text-center mt-5">
-          <div className="spinner-border text-primary" role="status"></div>
-          <p>Loading Dashboard...</p>
-        </div>
-      </DashboardLayout>
+      <div className="text-center mt-5">
+        <div className="spinner-border text-primary" role="status"></div>
+        <p>Loading Dashboard...</p>
+      </div>
     );
-
+  
   if (!data)
     return (
-      <DashboardLayout>
         <div className="text-center text-danger mt-5">
           <h5>⚠️ Failed to load dashboard data.</h5>
         </div>
-      </DashboardLayout>
     );
 
   const tenant = data?.tenant || {};
@@ -49,8 +95,37 @@ export default function TenantDashboard() {
   const recent_requests = data?.recent_requests || [];
 
   return (
+
       <div className="container py-4">
         <h3 className="fw-bold mb-4 text-primary">🏠 Tenant Dashboard</h3>
+
+          {/* 💳 Rent Summary Section */}
+          <div className="row mt-4">
+          <div className="col-md-3 mb-3">
+            <div className="card shadow-sm text-center p-3 border-primary">
+              <h6>Total Rent</h6>
+              <h4 className="text-primary">{summary.total} ৳</h4>
+            </div>
+          </div>
+          <div className="col-md-3 mb-3">
+            <div className="card shadow-sm text-center p-3 border-success">
+              <h6>Paid Rent</h6>
+              <h4 className="text-success">{summary.paid} ৳</h4>
+            </div>
+          </div>
+          <div className="col-md-3 mb-3">
+            <div className="card shadow-sm text-center p-3 border-danger">
+              <h6>Due Rent</h6>
+              <h4 className="text-danger">{summary.due} ৳</h4>
+            </div>
+          </div>
+          <div className="col-md-3 mb-3">
+            <div className="card shadow-sm text-center p-3 border-info">
+              <h6>Last Payment</h6>
+              <h5>{summary.last_month}</h5>
+            </div>
+          </div>
+        </div>
 
         {/* 👤 Tenant Info */}
         <div className="card shadow-sm mb-4 border-0">
@@ -90,7 +165,7 @@ export default function TenantDashboard() {
           <div className="alert alert-warning">No flat assigned yet.</div>
         )}
 
-        {/* 💰 Rent Info */}
+        {/* 💰 Latest Rent */}
         {latest_rent ? (
           <div className="card shadow-sm mb-4 border-0">
             <div className="card-body">
@@ -110,16 +185,27 @@ export default function TenantDashboard() {
                   {latest_rent.status}
                 </span>
               </p>
+
+              {/* ✅ Pay Rent Button */}
+              {latest_rent.status !== "Paid" && (
+                <button
+                  className="btn btn-primary mt-3"
+                  onClick={handlePayRent}
+                >
+                  Pay Rent
+                </button>
+              )}
             </div>
           </div>
         ) : (
           <div className="alert alert-info">No rent record found yet.</div>
         )}
 
-        
 
-        {/* 🧰 Recent Requests */}
-        <div className="card shadow-sm border-0">
+      
+
+        {/* 🧰 Recent Service Requests */}
+        <div className="card shadow-sm border-0 mt-4">
           <div className="card-body">
             <h5 className="card-title text-secondary fw-bold mb-3">
               🧰 Recent Service Requests
@@ -165,6 +251,6 @@ export default function TenantDashboard() {
           </div>
         </div>
       </div>
-    
+
   );
 }
