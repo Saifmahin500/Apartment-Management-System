@@ -77,8 +77,8 @@ export default function TenantDashboard() {
   if (loading)
     return (
       <div className="text-center mt-5">
-        <div className="spinner-border text-primary" role="status"></div>
-        <p>Loading Dashboard...</p>
+        <div className="spinner-border" style={{ color: '#1C8A96' }} role="status"></div>
+        <p className="mt-3" style={{ color: '#133232' }}>Loading Dashboard...</p>
       </div>
     );
   
@@ -95,162 +95,265 @@ export default function TenantDashboard() {
   const recent_requests = data?.recent_requests || [];
 
   return (
+    <>
+      <style>{`
+        .brand-primary { color: #133232 !important; }
+        .brand-secondary { color: #1C8A96 !important; }
+        .bg-brand-primary { background-color: #133232 !important; }
+        .bg-brand-secondary { background-color: #1C8A96 !important; }
+        .border-brand-primary { border-color: #133232 !important; }
+        .border-brand-secondary { border-color: #1C8A96 !important; }
+        .btn-brand { 
+          background-color: #1C8A96; 
+          border-color: #1C8A96; 
+          color: white;
+        }
+        .btn-brand:hover { 
+          background-color: #133232; 
+          border-color: #133232; 
+          color: white;
+        }
+        .card-custom {
+          border-radius: 12px;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-custom:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba(28, 138, 150, 0.2);
+        }
+        .summary-card {
+          border-left: 4px solid;
+          border-radius: 8px;
+        }
+        .table thead {
+          background-color: #133232;
+          color: white;
+        }
+      `}</style>
 
       <div className="container py-4">
-        <h3 className="fw-bold mb-4 text-primary">🏠 Tenant Dashboard</h3>
+        <div className="d-flex align-items-center mb-4">
+          <h3 className="fw-bold brand-primary mb-0">🏠 Tenant Dashboard</h3>
+        </div>
 
-          {/* 💳 Rent Summary Section */}
-          <div className="row mt-4">
-          <div className="col-md-3 mb-3">
-            <div className="card shadow-sm text-center p-3 border-primary">
-              <h6>Total Rent</h6>
-              <h4 className="text-primary">{summary.total} ৳</h4>
+        {/* 💳 Rent Summary Section */}
+        <div className="row g-3 mb-4">
+          <div className="col-md-3">
+            <div className="card shadow-sm summary-card border-primary card-custom">
+              <div className="card-body text-center py-4">
+                <h6 className="text-muted mb-2">Total Rent</h6>
+                <h3 className="brand-secondary fw-bold mb-0">{summary.total} ৳</h3>
+              </div>
             </div>
           </div>
-          <div className="col-md-3 mb-3">
-            <div className="card shadow-sm text-center p-3 border-success">
-              <h6>Paid Rent</h6>
-              <h4 className="text-success">{summary.paid} ৳</h4>
+          <div className="col-md-3">
+            <div className="card shadow-sm summary-card border-success card-custom">
+              <div className="card-body text-center py-4">
+                <h6 className="text-muted mb-2">Paid Rent</h6>
+                <h3 className="text-success fw-bold mb-0">{summary.paid} ৳</h3>
+              </div>
             </div>
           </div>
-          <div className="col-md-3 mb-3">
-            <div className="card shadow-sm text-center p-3 border-danger">
-              <h6>Due Rent</h6>
-              <h4 className="text-danger">{summary.due} ৳</h4>
+          <div className="col-md-3">
+            <div className="card shadow-sm summary-card border-danger card-custom">
+              <div className="card-body text-center py-4">
+                <h6 className="text-muted mb-2">Due Rent</h6>
+                <h3 className="text-danger fw-bold mb-0">{summary.due} ৳</h3>
+              </div>
             </div>
           </div>
-          <div className="col-md-3 mb-3">
-            <div className="card shadow-sm text-center p-3 border-info">
-              <h6>Last Payment</h6>
-              <h5>{summary.last_month}</h5>
+          <div className="col-md-3">
+            <div className="card shadow-sm summary-card border-info card-custom">
+              <div className="card-body text-center py-4">
+                <h6 className="text-muted mb-2">Last Payment</h6>
+                <h5 className="brand-primary fw-semibold mb-0">{summary.last_month}</h5>
+              </div>
             </div>
           </div>
         </div>
 
         {/* 👤 Tenant Info */}
-        <div className="card shadow-sm mb-4 border-0">
-          <div className="card-body">
-            <h5 className="card-title text-primary fw-bold mb-3">
-              👤 Tenant Information
-            </h5>
-            <p><strong>Name:</strong> {tenant.name || "N/A"}</p>
-            <p><strong>Email:</strong> {tenant.email || "N/A"}</p>
-            <p><strong>Phone:</strong> {tenant.phone || "N/A"}</p>
+        <div className="card shadow-sm mb-4 border-0 card-custom">
+          <div className="card-header bg-brand-secondary text-white py-3">
+            <h5 className="mb-0 fw-bold">👤 Tenant Information</h5>
+          </div>
+          <div className="card-body p-4">
+            <div className="row">
+              <div className="col-md-4 mb-3">
+                <p className="mb-1 text-muted small">Name</p>
+                <p className="fw-semibold brand-primary">{tenant.name || "N/A"}</p>
+              </div>
+              <div className="col-md-4 mb-3">
+                <p className="mb-1 text-muted small">Email</p>
+                <p className="fw-semibold brand-primary">{tenant.email || "N/A"}</p>
+              </div>
+              <div className="col-md-4 mb-3">
+                <p className="mb-1 text-muted small">Phone</p>
+                <p className="fw-semibold brand-primary">{tenant.phone || "N/A"}</p>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* 🏢 Flat Info */}
         {flat ? (
-          <div className="card shadow-sm mb-4 border-0">
-            <div className="card-body">
-              <h5 className="card-title text-success fw-bold mb-3">🏢 Your Flat</h5>
-              <p><strong>Name:</strong> {flat.name}</p>
-              <p><strong>Flat Number:</strong> {flat.flat_number}</p>
-              <p><strong>Floor:</strong> {flat.floor}</p>
-              <p><strong>Rent:</strong> ৳{flat.rent_amount}</p>
-              <p><strong>Size:</strong> {flat.size}</p>
-              <p>
-                <strong>Status:</strong>{" "}
-                <span
-                  className={`badge ms-2 ${
-                    flat.status === "occupied" ? "bg-success" : "bg-secondary"
-                  }`}
-                >
-                  {flat.status}
-                </span>
-              </p>
+          <div className="card shadow-sm mb-4 border-0 card-custom">
+            <div className="card-header bg-brand-primary text-white py-3">
+              <h5 className="mb-0 fw-bold">🏢 Your Flat</h5>
+            </div>
+            <div className="card-body p-4">
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Name</p>
+                  <p className="fw-semibold brand-primary">{flat.name}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Flat Number</p>
+                  <p className="fw-semibold brand-primary">{flat.flat_number}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Floor</p>
+                  <p className="fw-semibold brand-primary">{flat.floor}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Rent</p>
+                  <p className="fw-semibold brand-secondary">৳{flat.rent_amount}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Size</p>
+                  <p className="fw-semibold brand-primary">{flat.size}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Status</p>
+                  <span
+                    className={`badge ${
+                      flat.status === "occupied" ? "bg-success" : "bg-secondary"
+                    }`}
+                  >
+                    {flat.status}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="alert alert-warning">No flat assigned yet.</div>
+          <div className="alert alert-warning">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            No flat assigned yet.
+          </div>
         )}
 
         {/* 💰 Latest Rent */}
         {latest_rent ? (
-          <div className="card shadow-sm mb-4 border-0">
-            <div className="card-body">
-              <h5 className="card-title text-warning fw-bold mb-3">
-                💰 Latest Rent
-              </h5>
-              <p><strong>Month:</strong> {latest_rent.month}</p>
-              <p><strong>Year:</strong> {latest_rent.year}</p>
-              <p><strong>Amount:</strong> ৳{latest_rent.rent_amount}</p>
-              <p>
-                <strong>Status:</strong>{" "}
-                <span
-                  className={`badge ms-2 ${
-                    latest_rent.status === "Paid" ? "bg-success" : "bg-danger"
-                  }`}
-                >
-                  {latest_rent.status}
-                </span>
-              </p>
+          <div className="card shadow-sm mb-4 border-0 card-custom">
+            <div className="card-header py-3" style={{ backgroundColor: '#1C8A96', color: 'white' }}>
+              <h5 className="mb-0 fw-bold">💰 Latest Rent</h5>
+            </div>
+            <div className="card-body p-4">
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Month</p>
+                  <p className="fw-semibold brand-primary">{latest_rent.month}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Year</p>
+                  <p className="fw-semibold brand-primary">{latest_rent.year}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Rent Amount</p>
+                  <p className="fw-semibold brand-secondary">৳{latest_rent.rent_amount}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Utility Bill</p>
+                  <p className="fw-semibold brand-primary">৳{latest_rent.utility_amount}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Maintenance Charge</p>
+                  <p className="fw-semibold brand-primary">৳{latest_rent.maintenance_charge}</p>
+                </div>
+                <div className="col-md-4 mb-3">
+                  <p className="mb-1 text-muted small">Total Amount</p>
+                  <p className="fw-bold brand-secondary fs-5">৳{latest_rent.total_amount}</p>
+                </div>
+                <div className="col-12 mb-3">
+                  <p className="mb-1 text-muted small">Status</p>
+                  <span
+                    className={`badge fs-6 ${
+                      latest_rent.status === "Paid" ? "bg-success" : "bg-danger"
+                    }`}
+                  >
+                    {latest_rent.status}
+                  </span>
+                </div>
+              </div>
 
               {/* ✅ Pay Rent Button */}
               {latest_rent.status !== "Paid" && (
                 <button
-                  className="btn btn-primary mt-3"
+                  className="btn btn-brand btn-lg mt-3 px-4"
                   onClick={handlePayRent}
                 >
-                  Pay Rent
+                  💳 Pay Rent Now
                 </button>
               )}
             </div>
           </div>
         ) : (
-          <div className="alert alert-info">No rent record found yet.</div>
+          <div className="alert alert-info">
+            <i className="bi bi-info-circle-fill me-2"></i>
+            No rent record found yet.
+          </div>
         )}
 
-
-      
-
         {/* 🧰 Recent Service Requests */}
-        <div className="card shadow-sm border-0 mt-4">
-          <div className="card-body">
-            <h5 className="card-title text-secondary fw-bold mb-3">
-              🧰 Recent Service Requests
-            </h5>
+        <div className="card shadow-sm border-0 card-custom">
+          <div className="card-header bg-brand-primary text-white py-3">
+            <h5 className="mb-0 fw-bold">🧰 Recent Service Requests</h5>
+          </div>
+          <div className="card-body p-4">
             {recent_requests.length > 0 ? (
-              <table className="table table-bordered align-middle">
-                <thead className="table-dark">
-                  <tr>
-                    <th>#</th>
-                    <th>Service</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Charge</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent_requests.map((req, i) => (
-                    <tr key={req.id}>
-                      <td>{i + 1}</td>
-                      <td>{req.service?.name || "N/A"}</td>
-                      <td>{req.request_date}</td>
-                      <td>
-                        <span
-                          className={`badge ${
-                            req.status === "pending"
-                              ? "bg-warning"
-                              : req.status === "approved"
-                              ? "bg-success"
-                              : "bg-danger"
-                          }`}
-                        >
-                          {req.status}
-                        </span>
-                      </td>
-                      <td>{req.charge || "-"}</td>
+              <div className="table-responsive">
+                <table className="table table-hover align-middle">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Service</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Charge</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {recent_requests.map((req, i) => (
+                      <tr key={req.id}>
+                        <td className="fw-semibold">{i + 1}</td>
+                        <td>{req.service?.name || "N/A"}</td>
+                        <td className="text-muted">{req.request_date}</td>
+                        <td>
+                          <span
+                            className={`badge ${
+                              req.status === "pending"
+                                ? "bg-warning"
+                                : req.status === "approved"
+                                ? "bg-success"
+                                : "bg-danger"
+                            }`}
+                          >
+                            {req.status}
+                          </span>
+                        </td>
+                        <td className="fw-semibold brand-secondary">{req.charge ? `৳${req.charge}` : "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             ) : (
-              <p className="text-muted">No service requests found.</p>
+              <p className="text-muted text-center mb-0">No service requests found.</p>
             )}
           </div>
         </div>
       </div>
-
+    </>
   );
 }
