@@ -54,31 +54,21 @@ const InvoiceForm = ({ invoice, onSuccess }) => {
     fetchData();
   }, [invoice]);
 
-  const handleFlatChange = async (e) => {
+  const handleFlatChange = (e) => {
     const selectedFlatId = e.target.value;
-    setForm({ ...form, flat_id: selectedFlatId, tenant_id: "" });
-
+    const selectedFlat = flats.find((f) => f.id == selectedFlatId);
+  
+    setForm((prev) => ({
+      ...prev,
+      flat_id: selectedFlatId,
+      tenant_id: "",
+      total_amount: selectedFlat ? selectedFlat.rent_amount : "",
+    }));
+  
     const relatedTenants = tenants.filter((t) => t.flat_id == selectedFlatId);
     setFilteredTenants(relatedTenants);
-
-    try {
-      const res = await api.get(`/rents?flat_id=${selectedFlatId}`);
-      const rent = res.data[0];
-
-      if (rent) {
-        setForm((prev) => ({
-          ...prev,
-          total_amount:
-            (rent.rent_amount || 0) +
-            (rent.utility_amount || 0) +
-            (rent.maintenance_charge || 0),
-          status: rent.status === "Paid" ? "Paid" : "Unpaid",
-        }));
-      }
-    } catch (err) {
-      console.log("Rent fetch failed", err);
-    }
   };
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;

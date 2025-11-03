@@ -24,7 +24,7 @@ class FlatController extends Controller
     public function simpleList()
     {
         $flats = \App\Models\Flat::with('images')
-            ->where('status', 'available')
+            ->where('status', 'occupied')
             ->select('id', 'name', 'flat_number', 'floor', 'size', 'rent_amount')
             ->get();
 
